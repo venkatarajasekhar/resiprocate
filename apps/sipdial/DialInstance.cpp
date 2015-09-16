@@ -1,21 +1,24 @@
 
 
-#include "resip/dum/ClientAuthManager.hxx"
-#include "resip/dum/DialogUsageManager.hxx"
-#include "resip/dum/MasterProfile.hxx"
-#include "resip/stack/SipMessage.hxx"
-#include "resip/stack/SipStack.hxx"
-#include "resip/stack/Uri.hxx"
-#include "resip/stack/ssl/Security.hxx"
-#include "rutil/Data.hxx"
-#include "rutil/Log.hxx"
-#include "rutil/Logger.hxx"
-#include "rutil/SharedPtr.hxx"
+#include "resip/dum/ClientAuthManager.hpp"
+#include "resip/dum/DialogUsageManager.hpp"
+#include "resip/dum/MasterProfile.hpp"
+#include "resip/stack/SipMessage.hpp"
+#include "resip/stack/SipStack.hpp"
+#include "resip/stack/Uri.hpp"
+#include "resip/stack/ssl/Security.hpp"
+#include "rutil/Data.hpp"
+#include "rutil/Log.hpp"
+#include "rutil/Logger.hpp"
+#include "rutil/SharedPtr.hpp"
 
-#include "DialerConfiguration.hxx"
-#include "DialInstance.hxx"
-#include "MyInviteSessionHandler.hxx"
+#include "DialerConfiguration.hpp"
+#include "DialInstance.hpp"
+#include "MyInviteSessionHandler.hpp"
+#include <iostream>
+#include <new>
 
+using namespace std;
 using namespace resip;
 using namespace std;
 
@@ -35,7 +38,7 @@ DialInstance::DialResult DialInstance::execute()
 
    prepareAddress();
 
-   Security* security = 0;
+   Security* security = NULL;
 
    Data certPath(mDialerConfiguration.getCertPath());
    if(certPath.size() == 0)
@@ -43,13 +46,24 @@ DialInstance::DialResult DialInstance::execute()
       certPath = getenv("HOME");
       certPath += "/.sipdial/certs";
    }
+   try{
    security = new Security(certPath);
+   }catch (bad_alloc& ba){
+    err << "bad_alloc caught: " << ba.what() << '\n';
+  }
 
    if(mDialerConfiguration.getCADirectory().size() > 0)
       security->addCADirectory(mDialerConfiguration.getCADirectory());
-
-   mSipStack = new SipStack(security);
-   mDum = new DialogUsageManager(*mSipStack);
+   try{ 
+   mSipStack = new SipStack(security); //Ctor
+   }catch (bad_alloc& ba){
+    cerr << "bad_alloc caught: " << ba.what() << '\n';
+  }
+   try{    
+   mDum = new DialogUsageManager(*mSipStack);  //ctor
+   }catch (bad_alloc& ba){
+    cerr << "bad_alloc caught: " << ba.what() << '\n';
+  }
    //mDum->addTransport(UDP, 5067, V4);
    mDum->addTransport(TLS, 5067, V4);
    SharedPtr<MasterProfile> masterProfile = SharedPtr<MasterProfile>(new MasterProfile);
@@ -58,10 +72,13 @@ DialInstance::DialResult DialInstance::execute()
    mDum->setClientAuthManager(clientAuth);
    MyInviteSessionHandler *ish = new MyInviteSessionHandler(*this);
    mDum->setInviteSessionHandler(ish);
-
+   try{ 
    sendInvite();
+   }catch(...){
+   cerr << "Failed: sendInvite()" << '\n';
+   }
 
-   while(mSipStack != 0) 
+   while(mSipStack != NULL) 
    {
       FdSet fdset;
       mSipStack->buildFdSet(fdset);
@@ -102,7 +119,7 @@ DialInstance::DialResult DialInstance::execute()
          delete mDum;
          delete ish;
          delete mSipStack;
-         mSipStack = 0;
+         mSipStack = NULL;
       }
    }
 
@@ -148,17 +165,25 @@ void DialInstance::sendInvite()
    outboundUserProfile->setDefaultFrom(mDialerConfiguration.getDialerIdentity());
    outboundUserProfile->setDigestCredential(mDialerConfiguration.getAuthRealm(), mDialerConfiguration.getAuthUser(), mDialerConfiguration.getAuthPassword());
    SharedPtr<SipMessage> msg = mDum->makeInviteSession(NameAddr(mDialerConfiguration.getCallerUserAgentAddress()), outboundUserProfile, 0);
-   HeaderFieldValue *hfv = 0;
+   HeaderFieldValue *hfv = NULL;
    switch(mDialerConfiguration.getCallerUserAgentVariety())
    {
    case DialerConfiguration::Generic:
       break;
    case DialerConfiguration::LinksysSPA941:
+      try{ 
       hfv = new HeaderFieldValue("\\;answer-after=0", 16);
+      }catch (bad_alloc& ba){
+       cerr << "bad_alloc caught: " << ba.what() << '\n';
+      }
       msg->header(h_CallInfos).push_back(GenericUri(*hfv, Headers::CallInfo));
       break;
    case DialerConfiguration::AlertInfo:
-      hfv = new HeaderFieldValue("AA", 2);
+      try{ 
+      hfv = new HeaderFieldValue("AA", 2); //Ctor
+      }catch (bad_alloc& ba){
+       cerr << "bad_alloc caught: " << ba.what() << '\n';
+      }
       msg->header(h_AlertInfos).push_back(GenericUri(*hfv, Headers::AlertInfo));
       break;
    case DialerConfiguration::Cisco7940:
