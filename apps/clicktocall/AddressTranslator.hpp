@@ -33,6 +33,8 @@ class AddressTranslator
             resip::Data mMatchingPattern;
             resip::Data mRewriteExpression;
             regex_t *preq;
+            FilterOp();
+            ~FilterOp();
       };
       
       typedef std::list<FilterOp> FilterOpList;
