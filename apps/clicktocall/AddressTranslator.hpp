@@ -1,5 +1,5 @@
-#if !defined(AddressTranslator_hxx)
-#define AddressTranslator_hxx
+#if !defined(AddressTranslator_hpp)
+#define AddressTranslator_hpp
 
 #include <list>
 
@@ -8,7 +8,8 @@
 #else
 #include <regex.h>
 #endif
-#include "rutil/Data.hxx"
+#include "rutil/Data.hpp"
+using namespace std;
 
 namespace clicktocall
 {
@@ -35,7 +36,7 @@ class AddressTranslator
             regex_t *preq;
       };
       
-      typedef std::list<FilterOp> FilterOpList;
+      typedef list<FilterOp> FilterOpList;
       FilterOpList mFilterOperators; 
 };
 
