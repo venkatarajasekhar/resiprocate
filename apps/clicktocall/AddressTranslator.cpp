@@ -1,15 +1,16 @@
 
-#include "rutil/Logger.hxx"
-#include "rutil/ParseBuffer.hxx"
+#include "rutil/Logger.hpp"
+#include "rutil/ParseBuffer.hpp"
 
-#include "AppSubsystem.hxx"
-#include "AddressTranslator.hxx"
-#include "rutil/WinLeakCheck.hxx"
+#include "AppSubsystem.hpp"
+#include "AddressTranslator.hpp"
+#include "rutil/WinLeakCheck.hpp"
 
 #define RESIPROCATE_SUBSYSTEM AppSubsystem::CLICKTOCALL
 
 using namespace clicktocall;
 using namespace resip;
+using namespace resip::Data;
 using namespace std;
 
 namespace clicktocall 
@@ -21,28 +22,56 @@ AddressTranslator::AddressTranslator()
 
 AddressTranslator::~AddressTranslator()
 {
+    FilterOpList::iterator it;   //sequential container List
     // Destroy all of the filters
-    for(FilterOpList::iterator it = mFilterOperators.begin(); it != mFilterOperators.end(); it++)
+    for(it = mFilterOperators.begin(); it != mFilterOperators.end(); it++)
     {
-        if ( it->preq )
+        if (*it)
         {
-            regfree ( it->preq );
-            delete it->preq;
-            it->preq = 0;
+            try{
+            regfree(it->AddressTranslator::FilterOp::preq);
+            }catch(...){
+                
+            }
+            try{
+            delete it->AddressTranslator::FilterOp::preq;
+            }catch(...){
+                
+            }
+            it->AddressTranslator::FilterOp::preq = NULL;
         }
     }
-    mFilterOperators.clear();
+    try{
+    mFilterOperators.clear();  //Member function of List Class
+    }catch(...){
+        
+    }
 }
-      
+FilterOp::FilterOp(){
+    
+}
+     
 void 
 AddressTranslator::addTranslation(const resip::Data& matchingPattern,
                                   const resip::Data& rewriteExpression)
 { 
    InfoLog( << "Add translation " << matchingPattern << " -> " << rewriteExpression);
    
-   FilterOp filter;
+   try{
+   FilterOp filter; //Ctor
+   }catch(...){
+       
+   }
+   try{
    filter.mMatchingPattern = matchingPattern;
+   }catch(...){
+       
+   }
+   try{
    filter.mRewriteExpression =  rewriteExpression;
+   }catch(...){
+       
+   }
 
    if( !filter.mMatchingPattern.empty() )
    {
@@ -51,14 +80,22 @@ AddressTranslator::addTranslation(const resip::Data& matchingPattern,
      {
        flags |= REG_NOSUB;
      }
+     try{
      filter.preq = new regex_t;
+     }catch(...){
+         
+     }
+     try{
      int ret = regcomp( filter.preq, filter.mMatchingPattern.c_str(), flags );
+     }catch(...){
+         
+     }
      if( ret != 0 )
      {
        delete filter.preq;
        ErrLog( << "Translation has invalid match expression: "
                << filter.mMatchingPattern );
-       filter.preq = 0;
+       filter.preq = NULL;
      }
    }
    mFilterOperators.push_back( filter ); 
@@ -94,8 +131,8 @@ AddressTranslator::translate(const resip::Data& address, resip::Data& translatio
 {
    bool rc=false;
    DebugLog( << "Translating "<< address);
-
-   for (FilterOpList::iterator it = mFilterOperators.begin();
+   FilterOpList::iterator it;
+   for (it = mFilterOperators.begin();
         it != mFilterOperators.end(); it++)
    {
       Data rewrite = it->mRewriteExpression;
@@ -106,8 +143,8 @@ AddressTranslator::translate(const resip::Data& address, resip::Data& translatio
          
          const int nmatch=10;
          regmatch_t pmatch[nmatch];
-         
-         ret = regexec(it->preq, address.c_str(), nmatch, pmatch, 0/*eflags*/);
+         vector <regmatch_t> v_pmatch(pmatch[nmatch]);
+         ret = regexec(it->preq, address.c_str(), nmatch, v_pmatch, 0/*eflags*/);
          if ( ret != 0 )
          {
             // did not match 
@@ -122,17 +159,24 @@ AddressTranslator::translate(const resip::Data& address, resip::Data& translatio
          {
             for ( int i=1; i<nmatch; i++)
             {
-               if ( pmatch[i].rm_so != -1 )
+               if ( v_pmatch[i].rm_so != -1 )
                {
-                  Data subExp(address.substr(pmatch[i].rm_so,
-                                             pmatch[i].rm_eo-pmatch[i].rm_so));
+                  Data subExp(address.substr(v_pmatch[i].rm_so,
+                                             v_pmatch[i].rm_eo-v_pmatch[i].rm_so));
                   DebugLog( << "  subExpression[" <<i <<"]="<< subExp );
 
                   Data result;
                   {
+                     try{
                      DataStream s(result);
-
-                     ParseBuffer pb(translation);
+                     }catch(...){
+                         
+                     }
+                     try{
+                         ParseBuffer pb(translation);
+                     }catch(...){
+                         
+                     }
                      
                      while (true)
                      {
