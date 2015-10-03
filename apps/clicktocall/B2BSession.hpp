@@ -1,12 +1,12 @@
 #if !defined(B2BSession_hxx)
-#define B2BSession_hxx
+#define B2BSession_hpp
 
-#include <rutil/Log.hxx>
-#include <rutil/SharedPtr.hxx>
-#include <resip/dum/DialogUsageManager.hxx>
-#include <resip/dum/InviteSessionHandler.hxx>
-#include <resip/dum/DialogSetHandler.hxx>
-#include <resip/dum/AppDialogSet.hxx>
+#include <rutil/Log.hpp>
+#include <rutil/SharedPtr.hpp>
+#include <resip/dum/DialogUsageManager.hpp>
+#include <resip/dum/InviteSessionHandler.hpp>
+#include <resip/dum/DialogSetHandler.hpp>
+#include <resip/dum/AppDialogSet.hpp>
 
 #include "XmlRpcServer.hxx"
 
@@ -100,7 +100,7 @@ private:
    bool mWaitingNitAnswerFromPeer;
 
    // Click-to-Call Info
-   typedef enum
+   typedef enum class ClickToCallState
    {
       Undefined,                 // Not used
       Setup,
@@ -110,7 +110,7 @@ private:
       ReferToDestinationProceeding,
       ReferToDestinationConnected,
       ReferToDestinationFailed
-   } ClickToCallState;
+   } E_ClickToCallState;
    ClickToCallState mClickToCallState;
    void transitionClickToCallState(ClickToCallState newState, unsigned int statusCode=0);
 
