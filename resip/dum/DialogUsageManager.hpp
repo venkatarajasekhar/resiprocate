@@ -5,28 +5,28 @@
 #include <set>
 #include <map>
 
-#include "resip/stack/Headers.hxx"
-#include "resip/dum/EventDispatcher.hxx"
-#include "resip/dum/DialogEventInfo.hxx"
-#include "resip/dum/DialogSet.hxx"
-#include "resip/dum/DumTimeout.hxx"
-#include "resip/dum/HandleManager.hxx"
-#include "resip/dum/Handles.hxx"
-#include "resip/dum/MergedRequestKey.hxx"
-#include "resip/dum/RegistrationPersistenceManager.hxx"
-#include "resip/dum/PublicationPersistenceManager.hxx"
-#include "resip/dum/ServerSubscription.hxx"
-#include "rutil/BaseException.hxx"
-#include "rutil/SharedPtr.hxx"
-#include "rutil/ThreadIf.hxx"
-#include "resip/stack/SipStack.hxx"
-#include "resip/stack/TransactionUser.hxx"
-#include "resip/dum/DumFeature.hxx"
-#include "resip/dum/DumFeatureChain.hxx"
-#include "resip/dum/DumFeatureMessage.hxx"
-#include "resip/dum/TargetCommand.hxx"
-#include "resip/dum/ClientSubscriptionFunctor.hxx"
-#include "resip/dum/ServerSubscriptionFunctor.hxx"
+#include "resip/stack/Headers.hpp"
+#include "resip/dum/EventDispatcher.hpp"
+#include "resip/dum/DialogEventInfo.hpp"
+#include "resip/dum/DialogSet.hpp"
+#include "resip/dum/DumTimeout.hpp"
+#include "resip/dum/HandleManager.hpp"
+#include "resip/dum/Handles.hpp"
+#include "resip/dum/MergedRequestKey.hpp"
+#include "resip/dum/RegistrationPersistenceManager.hpp"
+#include "resip/dum/PublicationPersistenceManager.hpp"
+#include "resip/dum/ServerSubscription.hpp"
+#include "rutil/BaseException.hpp"
+#include "rutil/SharedPtr.hpp"
+#include "rutil/ThreadIf.hpp"
+#include "resip/stack/SipStack.hpp"
+#include "resip/stack/TransactionUser.hpp"
+#include "resip/dum/DumFeature.hpp"
+#include "resip/dum/DumFeatureChain.hpp"
+#include "resip/dum/DumFeatureMessage.hpp"
+#include "resip/dum/TargetCommand.hpp"
+#include "resip/dum/ClientSubscriptionFunctor.hpp"
+#include "resip/dum/ServerSubscriptionFunctor.hpp"
 
 namespace resip 
 {
@@ -84,19 +84,23 @@ class DialogUsageManager : public HandleManager, public TransactionUser
             Exception(const Data& msg,
                       const Data& file,
                       int line)
-               : BaseException(msg, file, line)
+               : try{
+               BaseException(msg, file, line);
+               }catch(...){
+                  
+               }
             {}
             
             virtual const char* name() const {return "DialogUsageManager::Exception";}
       };
 
-      typedef enum
+      typedef enum class EncryptionLevel
       {
          None = 0,
          Sign,
          Encrypt,
          SignAndEncrypt
-      } EncryptionLevel;
+      } tEnum_EncryptionLevel;
   
       // If createDefaultFeatures is true dum will construct a
       // IdentityHandler->EncryptionManager chain.
@@ -132,9 +136,9 @@ class DialogUsageManager : public HandleManager, public TransactionUser
 
       void setAppDialogSetFactory(std::auto_ptr<AppDialogSetFactory>);
 
-      void setMasterProfile(const SharedPtr<MasterProfile>& masterProfile);
-      SharedPtr<MasterProfile>& getMasterProfile();
-      SharedPtr<UserProfile>& getMasterUserProfile();
+      void setMasterProfile(const unique_ptr<MasterProfile>& masterProfile);
+      unique_ptr<MasterProfile>& getMasterProfile();
+      unique_ptr<UserProfile>& getMasterUserProfile();
       
       //optional handler to track the progress of DialogSets
       void setDialogSetHandler(DialogSetHandler* handler);
@@ -153,7 +157,7 @@ class DialogUsageManager : public HandleManager, public TransactionUser
       void setClientAuthManager(std::auto_ptr<ClientAuthManager> client);
 
       /// If there is no ServerAuthManager, the server does not authenticate requests
-      void setServerAuthManager(resip::SharedPtr<ServerAuthManager> server);
+      void setServerAuthManager(resip::unique_ptr<ServerAuthManager> server);
 
       /// If there is no such handler, calling makeInviteSession will throw and
       /// receiving an INVITE as a UAS will respond with 405 Method Not Allowed.
@@ -197,71 +201,73 @@ class DialogUsageManager : public HandleManager, public TransactionUser
       // the future. If the caller wants to keep it, it should make a copy. The
       // memory will exist at least up until the point where the application
       // calls DialogUsageManager::send(msg);
-      SharedPtr<SipMessage> makeInviteSession(const NameAddr& target, const SharedPtr<UserProfile>& userProfile, const Contents* initialOffer, AppDialogSet* ads = 0);
-      SharedPtr<SipMessage> makeInviteSession(const NameAddr& target, const Contents* initialOffer, AppDialogSet* ads = 0);
-      SharedPtr<SipMessage> makeInviteSession(const NameAddr& target, const SharedPtr<UserProfile>& userProfile, const Contents* initialOffer, EncryptionLevel level, const Contents* alternative = 0, AppDialogSet* ads = 0);
-      SharedPtr<SipMessage> makeInviteSession(const NameAddr& target, const Contents* initialOffer, EncryptionLevel level, const Contents* alternative = 0, AppDialogSet* ads = 0);
+      vector<unique_ptr<SipMessage>> v_sptr_SipMsg; 
+      
+      unique_ptr<SipMessage> makeInviteSession(const NameAddr& target, const <UserProfile>& userProfile, const Contents* initialOffer, AppDialogSet* ads = 0);
+      unique_ptr<SipMessage> makeInviteSession(const NameAddr& target, const Contents* initialOffer, AppDialogSet* ads = 0);
+      unique_ptr<SipMessage> makeInviteSession(const NameAddr& target, const <UserProfile>& userProfile, const Contents* initialOffer, EncryptionLevel level, const Contents* alternative = 0, AppDialogSet* ads = 0);
+      unique_ptr<SipMessage> makeInviteSession(const NameAddr& target, const Contents* initialOffer, EncryptionLevel level, const Contents* alternative = 0, AppDialogSet* ads = 0);
       // Versions that add a replaces header
-      SharedPtr<SipMessage> makeInviteSession(const NameAddr& target, InviteSessionHandle sessionToReplace, const SharedPtr<UserProfile>& userProfile, const Contents* initialOffer, AppDialogSet* ads = 0);
-      SharedPtr<SipMessage> makeInviteSession(const NameAddr& target, InviteSessionHandle sessionToReplace, const SharedPtr<UserProfile>& userProfile, const Contents* initialOffer, EncryptionLevel level = None, const Contents* alternative = 0, AppDialogSet* ads = 0);
-      SharedPtr<SipMessage> makeInviteSession(const NameAddr& target, InviteSessionHandle sessionToReplace, const Contents* initialOffer, EncryptionLevel level = None, const Contents* alternative = 0, AppDialogSet* ads = 0);
+      unique_ptr<SipMessage> makeInviteSession(const NameAddr& target, InviteSessionHandle sessionToReplace, const <UserProfile>& userProfile, const Contents* initialOffer, AppDialogSet* ads = 0);
+      unique_ptr<SipMessage> makeInviteSession(const NameAddr& target, InviteSessionHandle sessionToReplace, const <UserProfile>& userProfile, const Contents* initialOffer, EncryptionLevel level = None, const Contents* alternative = 0, AppDialogSet* ads = 0);
+      unique_ptr<SipMessage> makeInviteSession(const NameAddr& target, InviteSessionHandle sessionToReplace, const Contents* initialOffer, EncryptionLevel level = None, const Contents* alternative = 0, AppDialogSet* ads = 0);
       
       //will send a Notify(100)...currently can be decorated through the
       //OnReadyToSend callback.  Probably will change it's own callback/handler soon
-      SharedPtr<SipMessage> makeInviteSessionFromRefer(const SipMessage& refer, ServerSubscriptionHandle, 
+      unique_ptr<SipMessage> makeInviteSessionFromRefer(const SipMessage& refer, ServerSubscriptionHandle, 
                                                        const Contents* initialOffer, AppDialogSet* = 0);
-      SharedPtr<SipMessage> makeInviteSessionFromRefer(const SipMessage& refer, const SharedPtr<UserProfile>& userProfile, 
+      unique_ptr<SipMessage> makeInviteSessionFromRefer(const SipMessage& refer, const <UserProfile>& userProfile, 
                                                        const Contents* initialOffer, AppDialogSet* appDs = 0);
-      SharedPtr<SipMessage> makeInviteSessionFromRefer(const SipMessage& refer, ServerSubscriptionHandle, 
+      unique_ptr<SipMessage> makeInviteSessionFromRefer(const SipMessage& refer, ServerSubscriptionHandle, 
                                                        const Contents* initialOffer, EncryptionLevel level = None, const Contents* alternative = 0, AppDialogSet* = 0);
-      SharedPtr<SipMessage> makeInviteSessionFromRefer(const SipMessage& refer, const SharedPtr<UserProfile>& userProfile, ServerSubscriptionHandle, 
+      unique_ptr<SipMessage> makeInviteSessionFromRefer(const SipMessage& refer, const <UserProfile>& userProfile, ServerSubscriptionHandle, 
                                                        const Contents* initialOffer, EncryptionLevel level = None, const Contents* alternative = 0, AppDialogSet* = 0);
       
-      SharedPtr<SipMessage> makeSubscription(const NameAddr& target, const SharedPtr<UserProfile>& userProfile, const Data& eventType, AppDialogSet* = 0);
-      SharedPtr<SipMessage> makeSubscription(const NameAddr& target, const SharedPtr<UserProfile>& userProfile, const Data& eventType, 
+      unique_ptr<SipMessage> makeSubscription(const NameAddr& target, const <UserProfile>& userProfile, const Data& eventType, AppDialogSet* = 0);
+      unique_ptr<SipMessage> makeSubscription(const NameAddr& target, const <UserProfile>& userProfile, const Data& eventType, 
                                              UInt32 subscriptionTime, AppDialogSet* = 0);
-      SharedPtr<SipMessage> makeSubscription(const NameAddr& target, const SharedPtr<UserProfile>& userProfile, const Data& eventType, 
+      unique_ptr<SipMessage> makeSubscription(const NameAddr& target, const unique_ptr<UserProfile>& userProfile, const Data& eventType, 
                                              UInt32 subscriptionTime, int refreshInterval, AppDialogSet* = 0);
-      SharedPtr<SipMessage> makeSubscription(const NameAddr& target, const Data& eventType, AppDialogSet* = 0);
-      SharedPtr<SipMessage> makeSubscription(const NameAddr& target, const Data& eventType, UInt32 subscriptionTime, AppDialogSet* = 0);
-      SharedPtr<SipMessage> makeSubscription(const NameAddr& target, const Data& eventType, 
+      unique_ptr<SipMessage> makeSubscription(const NameAddr& target, const Data& eventType, AppDialogSet* = 0);
+      unique_ptr<SipMessage> makeSubscription(const NameAddr& target, const Data& eventType, UInt32 subscriptionTime, AppDialogSet* = 0);
+      unique_ptr<SipMessage> makeSubscription(const NameAddr& target, const Data& eventType, 
                                              UInt32 subscriptionTime, int refreshInterval, AppDialogSet* = 0);
 
       //unsolicited refer
-      SharedPtr<SipMessage> makeRefer(const NameAddr& target, const SharedPtr<UserProfile>& userProfile, const H_ReferTo::Type& referTo, AppDialogSet* = 0);
-      SharedPtr<SipMessage> makeRefer(const NameAddr& target, const H_ReferTo::Type& referTo, AppDialogSet* = 0);
+      unique_ptr<SipMessage> makeRefer(const NameAddr& target, const <UserProfile>& userProfile, const H_ReferTo::Type& referTo, AppDialogSet* = 0);
+      unique_ptr<SipMessage> makeRefer(const NameAddr& target, const H_ReferTo::Type& referTo, AppDialogSet* = 0);
 
-      SharedPtr<SipMessage> makePublication(const NameAddr& target, 
-                                            const SharedPtr<UserProfile>& userProfile, 
+      unique_ptr<SipMessage> makePublication(const NameAddr& target, 
+                                            const <UserProfile>& userProfile, 
                                             const Contents& body, 
                                             const Data& eventType, 
                                             UInt32 expiresSeconds, 
                                             AppDialogSet* = 0);
-      SharedPtr<SipMessage> makePublication(const NameAddr& target, 
+      unique_ptr<SipMessage> makePublication(const NameAddr& target, 
                                             const Contents& body, 
                                             const Data& eventType, 
                                             UInt32 expiresSeconds, 
                                             AppDialogSet* = 0);
 
-      SharedPtr<SipMessage> makeRegistration(const NameAddr& target, const SharedPtr<UserProfile>& userProfile, AppDialogSet* = 0);
-      SharedPtr<SipMessage> makeRegistration(const NameAddr& target, const SharedPtr<UserProfile>& userProfile, UInt32 registrationTime, AppDialogSet* = 0);
-      SharedPtr<SipMessage> makeRegistration(const NameAddr& target, AppDialogSet* = 0);
-      SharedPtr<SipMessage> makeRegistration(const NameAddr& target, UInt32 registrationTime, AppDialogSet* = 0);
+      unique_ptr<SipMessage> makeRegistration(const NameAddr& target, const <UserProfile>& userProfile, AppDialogSet* = 0);
+      unique_ptr<SipMessage> makeRegistration(const NameAddr& target, const <UserProfile>& userProfile, UInt32 registrationTime, AppDialogSet* = 0);
+      unique_ptr<SipMessage> makeRegistration(const NameAddr& target, AppDialogSet* = 0);
+      unique_ptr<SipMessage> makeRegistration(const NameAddr& target, UInt32 registrationTime, AppDialogSet* = 0);
 
-      SharedPtr<SipMessage> makeOutOfDialogRequest(const NameAddr& target, const SharedPtr<UserProfile>& userProfile, const MethodTypes meth, AppDialogSet* = 0);
-      SharedPtr<SipMessage> makeOutOfDialogRequest(const NameAddr& target, const MethodTypes meth, AppDialogSet* = 0);
+      unique_ptr<SipMessage> makeOutOfDialogRequest(const NameAddr& target, const <UserProfile>& userProfile, const MethodTypes meth, AppDialogSet* = 0);
+      unique_ptr<SipMessage> makeOutOfDialogRequest(const NameAddr& target, const MethodTypes meth, AppDialogSet* = 0);
 
-      ClientPagerMessageHandle makePagerMessage(const NameAddr& target, const SharedPtr<UserProfile>& userProfile, AppDialogSet* = 0);
+      ClientPagerMessageHandle makePagerMessage(const NameAddr& target, const <UserProfile>& userProfile, AppDialogSet* = 0);
       ClientPagerMessageHandle makePagerMessage(const NameAddr& target, AppDialogSet* = 0);
       
       void end(DialogSetId invSessionId);
-      void send(SharedPtr<SipMessage> request);
-      void sendCommand(SharedPtr<SipMessage> request);
+      void send(<SipMessage> request);
+      void sendCommand(<SipMessage> request);
 
       class SendCommand : public DumCommandAdapter
       {
          public:
-            SendCommand(SharedPtr<SipMessage> request,
+            SendCommand(<SipMessage> request,
                         DialogUsageManager& dum):
                mRequest(request),
                mDum(dum)
@@ -280,7 +286,7 @@ class DialogUsageManager : public HandleManager, public TransactionUser
             }
 
          protected:
-            SharedPtr<SipMessage> mRequest;
+            <SipMessage> mRequest;
             DialogUsageManager& mDum;
       };
 
@@ -330,10 +336,10 @@ class DialogUsageManager : public HandleManager, public TransactionUser
       //ServerAuthManager is now a DumFeature; setServerAuthManager is a special
       //case of addFeature; the ServerAuthManager should always be the first
       //feature in the chain.
-      void addIncomingFeature(resip::SharedPtr<DumFeature> feat);
-      void addOutgoingFeature(resip::SharedPtr<DumFeature> feat);
+      void addIncomingFeature(resip::<DumFeature> feat);
+      void addOutgoingFeature(resip::<DumFeature> feat);
 
-      void setOutgoingMessageInterceptor(resip::SharedPtr<DumFeature> feat);
+      void setOutgoingMessageInterceptor(resip::<DumFeature> feat);
 
       TargetCommand::Target& dumIncomingTarget();
 
@@ -357,7 +363,7 @@ class DialogUsageManager : public HandleManager, public TransactionUser
       // at the same time it deletes other handlers when DUM is destroyed.
       DialogEventStateManager* createDialogEventStateManager(DialogEventHandler* handler);
 
-      void setAdvertisedCapabilities(SipMessage& msg, SharedPtr<UserProfile> userProfile);
+      void setAdvertisedCapabilities(SipMessage& msg, unique_ptr<UserProfile> userProfile);
 
    protected:
       virtual void onAllHandlesDestroyed();      
@@ -368,7 +374,7 @@ class DialogUsageManager : public HandleManager, public TransactionUser
       DumFeatureChain::FeatureList mIncomingFeatureList;
       DumFeatureChain::FeatureList mOutgoingFeatureList;
       
-      SharedPtr<DumFeature> mOutgoingMessageInterceptor;
+      unique_ptr<DumFeature> mOutgoingMessageInterceptor;
 
       typedef std::map<Data, DumFeatureChain*> FeatureChainMap;
       FeatureChainMap mIncomingFeatureChainMap;
@@ -425,7 +431,7 @@ class DialogUsageManager : public HandleManager, public TransactionUser
       };
 
       DialogSet* makeUacDialogSet(BaseCreator* creator, AppDialogSet* appDs);
-      SharedPtr<SipMessage> makeNewSession(BaseCreator* creator, AppDialogSet* appDs);
+      unique_ptr<SipMessage> makeNewSession(BaseCreator* creator, AppDialogSet* appDs);
 
       // makes a proto response to a request
       void makeResponse(SipMessage& response, 
@@ -498,8 +504,8 @@ class DialogUsageManager : public HandleManager, public TransactionUser
       typedef HashMap<DialogSetId, DialogSet*> DialogSetMap;
       DialogSetMap mDialogSetMap;
 
-      SharedPtr<MasterProfile> mMasterProfile;
-      SharedPtr<UserProfile> mMasterUserProfile;
+      unique_ptr<MasterProfile> mMasterProfile;
+      unique_ptr<UserProfile> mMasterUserProfile;
       std::auto_ptr<RedirectManager>   mRedirectManager;
       std::auto_ptr<ClientAuthManager> mClientAuthManager;
       //std::auto_ptr<ServerAuthManager> mServerAuthManager;  
@@ -535,16 +541,16 @@ class DialogUsageManager : public HandleManager, public TransactionUser
       std::auto_ptr<AppDialogSetFactory> mAppDialogSetFactory;
 
       SipStack& mStack;
-      DumShutdownHandler* mDumShutdownHandler;
-      typedef enum 
+      DumShutdownHandler* mDumShutdownHandler = NULL;
+      typedef enum class ShutdownState
       {
          Running,
          ShutdownRequested, // while ending usages
          RemovingTransactionUser, // while removing TU from stack
          Shutdown,  // after TU has been removed from stack
          Destroying // while calling destructor
-      } ShutdownState;
-      ShutdownState mShutdownState;
+      } E_ShutdownState;
+      E_ShutdownState mShutdownState;
 
       // from ETag -> ServerPublication
       typedef std::map<Data, ServerPublication*> ServerPublications;
