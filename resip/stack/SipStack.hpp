@@ -1,5 +1,5 @@
-#if !defined(RESIP_SIPSTACK_HXX)
-#define RESIP_SIPSTACK_HXX
+#if !defined(RESIP_SIPSTACK_HPP)
+#define RESIP_SIPSTACK_HPP
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -8,21 +8,21 @@
 #include <set>
 #include <iosfwd>
 
-#include "rutil/CongestionManager.hxx"
-#include "rutil/FdSetIOObserver.hxx"
-#include "rutil/TimeLimitFifo.hxx"
-#include "rutil/Mutex.hxx"
-#include "rutil/TransportType.hxx"
-#include "rutil/BaseException.hxx"
-#include "resip/stack/TransactionController.hxx"
-#include "resip/stack/TransportSelector.hxx"
-#include "resip/stack/SecurityTypes.hxx"
-#include "resip/stack/StatisticsManager.hxx"
-#include "resip/stack/TuSelector.hxx"
-#include "resip/stack/WsConnectionValidator.hxx"
-#include "resip/stack/WsCookieContextFactory.hxx"
-#include "rutil/dns/DnsStub.hxx"
-#include "rutil/SharedPtr.hxx"
+#include "rutil/CongestionManager.hpp"
+#include "rutil/FdSetIOObserver.hpp"
+#include "rutil/TimeLimitFifo.hpp"
+#include "rutil/Mutex.hpp"
+#include "rutil/TransportType.hpp"
+#include "rutil/BaseException.hpp"
+#include "resip/stack/TransactionController.hpp"
+#include "resip/stack/TransportSelector.hpp"
+#include "resip/stack/SecurityTypes.hpp"
+#include "resip/stack/StatisticsManager.hpp"
+#include "resip/stack/TuSelector.hpp"
+#include "resip/stack/WsConnectionValidator.hpp"
+#include "resip/stack/WsCookieContextFactory.hpp"
+#include "rutil/dns/DnsStub.hpp"
+#include "rutil/SharedPtr.hpp"
 
 /**
     Let external applications know that this version of the stack
@@ -101,9 +101,13 @@ class SipStackOptions
 {
    public:
       SipStackOptions()
+      try{
          : mSecurity(0), mExtraNameserverList(0),
            mAsyncProcessHandler(0), mStateless(false),
            mSocketFunc(0), mCompression(0), mPollGrp(0)
+      }catch(...){
+          
+      }
       {
       }
 
@@ -195,13 +199,13 @@ class SipStack : public FdSetIOObserver
                               is not passed, one will be created. Ownership is 
                               not taken.
       */
-      SipStack(Security* security=0,
+      SipStack(Security* security=NULL,
                const DnsStub::NameserverList& additional = DnsStub::EmptyNameserverList,
-               AsyncProcessHandler* handler = 0,
+               AsyncProcessHandler* handler = NULL,
                bool stateless=false,
                AfterSocketCreationFuncPtr socketFunc = 0,
-               Compression *compression = 0,
-               FdPollGrp* pollGrp = 0);
+               Compression *compression = NULL,
+               FdPollGrp* pollGrp = NULL);
 
       virtual ~SipStack();
 
@@ -1013,8 +1017,17 @@ class SipStack : public FdSetIOObserver
       */
       void setCongestionManager ( CongestionManager *manager )
       {
+         if(manager){ 
+             try{
          mTransactionController->setCongestionManager(manager);
+             }catch(...){
+                 
+             }
+         try{
          mTuSelector.setCongestionManager(manager);
+         }catch(...){
+             
+         }
          if(mCongestionManager)
          {
             mCongestionManager->unregisterFifo(&mTUFifo);
@@ -1022,10 +1035,17 @@ class SipStack : public FdSetIOObserver
          mCongestionManager=manager;
          if(mCongestionManager)
          {
+            try{ 
             mCongestionManager->registerFifo(&mTUFifo);
+            }catch(...){
+                
+            }
          }
       }
-
+      else{
+          //needs to implement
+      }
+      }
       /**
          @brief Accessor for the CongestionManager object the stack is using.
          @return The CongestionManager object being used.
