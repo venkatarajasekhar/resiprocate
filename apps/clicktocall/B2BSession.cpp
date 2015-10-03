@@ -1,17 +1,17 @@
-#include "B2BSession.hxx"
-#include "Server.hxx"
-#include "AppSubsystem.hxx"
+#include "B2BSession.hpp"
+#include "Server.hpp"
+#include "AppSubsystem.hpp"
 
-#include <resip/stack/PlainContents.hxx>
-#include <resip/stack/SdpContents.hxx>
-#include <resip/stack/SipFrag.hxx>
-#include <resip/dum/ServerInviteSession.hxx>
-#include <resip/dum/ClientInviteSession.hxx>
-#include <resip/dum/ClientSubscription.hxx>
-#include <rutil/DnsUtil.hxx>
-#include <rutil/Log.hxx>
-#include <rutil/Logger.hxx>
-#include <rutil/WinLeakCheck.hxx>
+#include <resip/stack/PlainContents.hpp>
+#include <resip/stack/SdpContents.hpp>
+#include <resip/stack/SipFrag.hpp>
+#include <resip/dum/ServerInviteSession.hpp>
+#include <resip/dum/ClientInviteSession.hpp>
+#include <resip/dum/ClientSubscription.hpp>
+#include <rutil/DnsUtil.hpp>
+#include <rutil/Log.hpp>
+#include <rutil/Logger.hpp>
+#include <rutil/WinLeakCheck.hpp>
 
 using namespace clicktocall;
 using namespace resip;
@@ -30,10 +30,15 @@ using namespace std;
 #endif
 #define B2BLOG_PREFIX << "B2BSession[" << mHandle << "] "
 
+using namespace std;
+using namespace resip;
+
+
 namespace clicktocall 
 {
 
 B2BSession::B2BSession(Server& server) : 
+   try{
    AppDialogSet(server.getDialogUsageManager()), 
    mServer(server), 
    mDum(server.getDialogUsageManager()),
@@ -45,14 +50,29 @@ B2BSession::B2BSession(Server& server) :
    mClickToCallState(Undefined),
    mClickToCallAnchorEnabled(false),
    mClickToCallInitiator(false)
+   }catch(...){
+      
+   }
 {
+   try{
    mHandle = mServer.registerB2BSession(this);
+   }catch(...){
+      
+   }
 }
 
 B2BSession::~B2BSession()
 {
-   endPeer();
+   try{
+   B2BSession::endPeer();
+   }catch(...){
+      
+   }
+   try{
    mServer.unregisterB2BSession(mHandle);
+   }catch(...){
+      
+   }
 }
 
 void 
@@ -71,35 +91,61 @@ void
 B2BSession::stealPeer(B2BSession* victimSession)
 {
    // Assume Peer mapping of victim - and copy some settings
-   setPeer(victimSession->getPeer());
+   try{
+   B2BSession::setPeer(victimSession->getPeer());
+   }catch(...){
+      
+   }
    if(mPeer)
    {
       mPeer->setPeer(this);
    }
 
    // Clear peer mapping in victim session
-   victimSession->setPeer(0);
+   try{
+   victimSession->setPeer(NULL);
+   }catch(...){
+      
+   }
 }
 
 void 
 B2BSession::startCall(const Uri& destinationUri, const NameAddr& from, const SdpContents *sdp)
 {
    // Create a UserProfile for new call
-   SharedPtr<UserProfile> userProfile(new UserProfile(mServer.getMasterProfile()));
+   //Need to define the sequential container (vector,List)
+   try{
+   vector <UserProfile> userProfile(new UserProfile(mServer.getMasterProfile()));
+   }catch(...){
+      
+   }
 
    // Set the From address
+   try{
    userProfile->setDefaultFrom(from);  
+   }catch(...){
+      
+   }
+   try{
    userProfile->getDefaultFrom().remove(p_tag);  // Remove tag (if it exists)
+   }catch(...){
+      
+   }
 
    // Create the invite message
-   SharedPtr<SipMessage> invitemsg = mDum.makeInviteSession(
+   vector<SipMessage> invitemsg;
+   mDum.makeInviteSession(
       NameAddr(destinationUri), 
       userProfile,
       sdp, 
       this);
 
    // Send the invite message
+   try{
    mDum.send(invitemsg);
+   }catch(...){
+      
+   }
 }
 
 void
