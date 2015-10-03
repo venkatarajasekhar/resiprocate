@@ -2,22 +2,22 @@
 #include "config.h"
 #endif
 
-#include "resip/stack/Contents.hxx"
-#include "resip/stack/Embedded.hxx"
-#include "resip/stack/OctetContents.hxx"
-#include "resip/stack/HeaderFieldValueList.hxx"
-#include "resip/stack/SipMessage.hxx"
-#include "resip/stack/ExtensionHeader.hxx"
-#include "rutil/Coders.hxx"
-#include "rutil/CountStream.hxx"
-#include "rutil/Logger.hxx"
-#include "rutil/MD5Stream.hxx"
-#include "rutil/compat.hxx"
-#include "rutil/vmd5.hxx"
-#include "rutil/Coders.hxx"
-#include "rutil/Random.hxx"
-#include "rutil/ParseBuffer.hxx"
-#include "resip/stack/MsgHeaderScanner.hxx"
+#include "resip/stack/Contents.hpp"
+#include "resip/stack/Embedded.hpp"
+#include "resip/stack/OctetContents.hpp"
+#include "resip/stack/HeaderFieldValueList.hpp"
+#include "resip/stack/SipMessage.hpp"
+#include "resip/stack/ExtensionHeader.hpp"
+#include "rutil/Coders.hpp"
+#include "rutil/CountStream.hpp"
+#include "rutil/Logger.hpp"
+#include "rutil/MD5Stream.hpp"
+#include "rutil/compat.hpp"
+#include "rutil/vmd5.hpp"
+#include "rutil/Coders.hpp"
+#include "rutil/Random.hpp"
+#include "rutil/ParseBuffer.hpp"
+#include "resip/stack/MsgHeaderScanner.hpp"
 //#include "rutil/WinLeakCheck.hxx"  // not compatible with placement new used below
 
 using namespace resip;
@@ -26,9 +26,54 @@ using namespace std;
 #define RESIPROCATE_SUBSYSTEM Subsystem::SIP
 
 bool SipMessage::checkContentLength=true;
-
+try{
+static const Data requestEB("SipReq:  ");
+}catch(...){
+   
+}
+try{
+static const Data responseEB("SipResp: ");
+}catch(...){
+   
+}
+try{
+static const Data tidEB(" tid=");
+}catch(...){
+   
+}
+try{
+static const Data contactEB(" contact=");
+}catch(...){
+   
+}
+try{
+static const Data cseqEB(" cseq=");
+}catch(...){
+   
+}
+try{
+static const Data slashEB(" / ");
+}catch(...){
+   
+}
+try{
+   static const Data wireEB(" from(wire)");
+}catch(...){
+   
+}
+try{
+static const Data ftuEB(" from(tu)");
+}catch(...){
+   
+}
+try{
+static const Data tlsdEB(" tlsd=");
+}catch(...){
+   
+}
 SipMessage::SipMessage(const Tuple *receivedTransportTuple)
-   : mIsDecorated(false),
+   : try{
+     mIsDecorated(false),
      mIsBadAck200(false),     
      mIsExternal(receivedTransportTuple != 0),  // may be modified later by setFromTU or setFromExternal
      mHeaders(StlPoolAllocator<HeaderFieldValueList*, PoolBase >(&mPool)),
@@ -42,24 +87,39 @@ SipMessage::SipMessage(const Tuple *receivedTransportTuple)
      mInvalid(false),
      mCreatedTime(Timer::getTimeMicroSec()),
      mTlsDomain(Data::Empty)
+   }catch(...){
+      
+   }
 {
    if(receivedTransportTuple)
    {
        mReceivedTransportTuple = *receivedTransportTuple;
    }
    // !bwc! TODO make this tunable
+   try{
    mHeaders.reserve(16);
+   }catch(...){
+      
+   }
+   try{
    clear();
+   }catch(...){
+      
+   }
 }
 
 SipMessage::SipMessage(const SipMessage& from)
-   : mHeaders(StlPoolAllocator<HeaderFieldValueList*, PoolBase >(&mPool)),
+   :try{ 
+   mHeaders(StlPoolAllocator<HeaderFieldValueList*, PoolBase >(&mPool)),
 #ifndef __SUNPRO_CC
      mUnknownHeaders(StlPoolAllocator<std::pair<Data, HeaderFieldValueList*>, PoolBase >(&mPool)),
 #else
      mUnknownHeaders(),
 #endif
      mCreatedTime(Timer::getTimeMicroSec())
+   }catch(...){
+      
+   }
 {
    init(from);
 }
@@ -67,7 +127,12 @@ SipMessage::SipMessage(const SipMessage& from)
 Message*
 SipMessage::clone() const
 {
-   return new SipMessage(*this);
+   return 
+   try{
+      new SipMessage(*this);
+   }catch(...){
+      
+   }
 }
 
 SipMessage& 
@@ -104,12 +169,28 @@ SipMessage::clear(bool leaveResponseStuff)
 {
    if(!leaveResponseStuff)
    {
+      try{
       memset(mHeaderIndices,0,sizeof(mHeaderIndices));
-      clearHeaders();
+      }catch(...){
+         
+      }
+      try{
+         clearHeaders();
+      }catch(...){
+         
+      }
       
       // !bwc! The "invalid" 0 index.
+      try{
       mHeaders.push_back(getEmptyHfvl());
+      }catch(...){
+         
+      }
+      try{
       mBufferList.clear();
+      }catch(...){
+         
+      }
    }
 
    mUnknownHeaders.clear();
@@ -142,39 +223,67 @@ SipMessage::init(const SipMessage& rhs)
    }
    else
    {
+      try{
       mReason = new Data(*rhs.mReason);
+      }catch(...){
+         
+      }
    }
    mTlsDomain = rhs.mTlsDomain;
-
+   try{
    memcpy(&mHeaderIndices,&rhs.mHeaderIndices,sizeof(mHeaderIndices));
-
-   // .bwc. Clear out the pesky invalid 0 index.
-   clearHeaders();
-   mHeaders.reserve(rhs.mHeaders.size());
-   for (TypedHeaders::const_iterator i = rhs.mHeaders.begin();
-        i != rhs.mHeaders.end(); i++)
-   {
-      mHeaders.push_back(getCopyHfvl(**i));
+   }catch(...){
+      
    }
 
-   for (UnknownHeaders::const_iterator i = rhs.mUnknownHeaders.begin();
-        i != rhs.mUnknownHeaders.end(); i++)
+   // .bwc. Clear out the pesky invalid 0 index.
+   try{
+   clearHeaders();
+   }catch(...){
+      
+   }
+   try{
+      mHeaders.reserve(rhs.mHeaders.size());
+   }catch(...){
+      
+   }
+   TypedHeaders::const_iterator iter;
+   for (iter = rhs.mHeaders.begin();
+        iter != rhs.mHeaders.end(); iter++)
+   {
+      mHeaders.push_back(getCopyHfvl(**iter);
+   }
+   UnknownHeaders::const_iterator constitr;
+   for ( constitr = rhs.mUnknownHeaders.begin();
+        constitr != rhs.mUnknownHeaders.end(); constitr++)
    {
       mUnknownHeaders.push_back(pair<Data, HeaderFieldValueList*>(
-                                   i->first,
-                                   getCopyHfvl(*i->second)));
+                                   constitr->first,
+                                   getCopyHfvl(*constitr->second)));
    }
    if (rhs.mStartLine != 0)
    {
+      try{
       mStartLine = rhs.mStartLine->clone(mStartLineMem);
+      }catch(...){
+         
+      }
    }
    if (rhs.mContents != 0)
    {
+      try{
       mContents = rhs.mContents->clone();
+      }catch(...){
+         
+      }
    }
    else if (rhs.mContentsHfv.getBuffer() != 0)
    {
+      try{
       mContentsHfv.copyWithPadding(rhs.mContentsHfv);
+      }catch(...){
+         
+      }
    }
    else
    {
@@ -182,7 +291,11 @@ SipMessage::init(const SipMessage& rhs)
    }
    if (rhs.mForceTarget != 0)
    {
+      try{
       mForceTarget = new Uri(*rhs.mForceTarget);
+      }catch(...){
+         
+      }
    }
 
    if (rhs.mSecurityAttributes.get())
@@ -190,13 +303,24 @@ SipMessage::init(const SipMessage& rhs)
 
       if (!mSecurityAttributes.get())
       {
+         try{
          SecurityAttributes* attr = new SecurityAttributes();
-         mSecurityAttributes.reset(attr);
+         }catch(...){
+            
+         }
+         try{         mSecurityAttributes.reset(attr);
+         }catch(...){
+            
+         }
       }
 
       if (rhs.mSecurityAttributes->isEncrypted())
       {
+         try{
          mSecurityAttributes->setEncrypted();
+         }catch(...){
+            
+         }
       }
       mSecurityAttributes->setSignatureStatus(rhs.mSecurityAttributes->getSignatureStatus());
       mSecurityAttributes->setIdentity(rhs.mSecurityAttributes->getIdentity());
@@ -212,30 +336,35 @@ SipMessage::init(const SipMessage& rhs)
          mSecurityAttributes.reset();
       }
    }
-
-   for(std::vector<MessageDecorator*>::const_iterator i=rhs.mOutboundDecorators.begin(); i!=rhs.mOutboundDecorators.end();++i)
+   std::vector<MessageDecorator*>::const_iterator consitr;
+   for(consitr=rhs.mOutboundDecorators.begin(); consitr!=rhs.mOutboundDecorators.end();++consitr)
    {
-      mOutboundDecorators.push_back((*i)->clone());
+      mOutboundDecorators.push_back((*consitr)->clone());
    }
 }
 
 void
 SipMessage::freeMem(bool leaveResponseStuff)
 {
-   for (UnknownHeaders::iterator i = mUnknownHeaders.begin();
-        i != mUnknownHeaders.end(); i++)
+   UnknownHeaders::iterator itr;
+   for ( itr= mUnknownHeaders.begin();
+        itr != mUnknownHeaders.end(); itr++)
    {
-      freeHfvl(i->second);
+      try{
+      freeHfvl(itr->second);
+      }catch(...){
+         
+      }
    }
 
    if(!leaveResponseStuff)
    {
       clearHeaders();
-
-      for (vector<char*>::iterator i = mBufferList.begin();
-           i != mBufferList.end(); i++)
+      vector<char*>::iterator vectitr;
+      for ( vectitr= mBufferList.begin();
+           vectitr != mBufferList.end(); vectitr++)
       {
-         delete [] *i;
+         delete [] *vectitr;
       }
    }
 
@@ -248,20 +377,25 @@ SipMessage::freeMem(bool leaveResponseStuff)
    delete mContents;
    delete mForceTarget;
    delete mReason;
-
-   for(std::vector<MessageDecorator*>::iterator i=mOutboundDecorators.begin();
-         i!=mOutboundDecorators.end();++i)
+   std::vector<MessageDecorator*>::iterator Msgitr;
+   for(Msgitr=mOutboundDecorators.begin();
+         Msgitr!=mOutboundDecorators.end();++Msgitr)
    {
-      delete *i;
+      delete *Msgitr;
    }
 }
 
 void
 SipMessage::clearHeaders()
 {
-    for (TypedHeaders::iterator i = mHeaders.begin(); i != mHeaders.end(); i++)
+    TypedHeaders::iterator Headeritr;
+    for ( Headeritr = mHeaders.begin(); Headeritr != mHeaders.end(); Headeritr++)
     {
-        freeHfvl(*i);
+        try{
+        freeHfvl(*Headeritr);
+        }catch(...){
+           
+        }
     }
     mHeaders.clear();
 }
@@ -271,10 +405,17 @@ SipMessage::make(const Data& data, bool isExternal)
 {
    Tuple fakeWireTuple;
    fakeWireTuple.setType(UDP);
+   try{
    SipMessage* msg = new SipMessage(isExternal ? &fakeWireTuple : 0);
-
+   }catch(...){
+      
+   }
    size_t len = data.size();
+   try{
    char *buffer = new char[len + 5];
+   }catch(...){
+      
+   }
 
    msg->addBuffer(buffer);
    memcpy(buffer,data.data(), len);
@@ -315,10 +456,14 @@ SipMessage::parseAllHeaders()
 {
    for (int i = 0; i < Headers::MAX_HEADERS; i++)
    {
-      ParserContainerBase* pc=0;
+      ParserContainerBase* pc=NULL;
       if(mHeaderIndices[i]>0)
       {
+         try{
          HeaderFieldValueList* hfvl = ensureHeaders((Headers::Type)i);
+         }catch(...){
+            
+         }
          if(!Headers::isMulti((Headers::Type)i) && hfvl->parsedEmpty())
          {
             hfvl->push_back(0,0,false);
@@ -337,7 +482,7 @@ SipMessage::parseAllHeaders()
    for (UnknownHeaders::iterator i = mUnknownHeaders.begin();
         i != mUnknownHeaders.end(); i++)
    {
-      ParserContainerBase* scs=0;
+      ParserContainerBase* scs=NULL;
       if(!(scs=i->second->getParserContainer()))
       {
          scs=makeParserContainer<StringCategory>(i->second,Headers::RESIP_DO_NOT_USE);
@@ -622,16 +767,6 @@ SipMessage::methodStr() const
    }
    return Data::Empty;
 }
-
-static const Data requestEB("SipReq:  ");
-static const Data responseEB("SipResp: ");
-static const Data tidEB(" tid=");
-static const Data contactEB(" contact=");
-static const Data cseqEB(" cseq=");
-static const Data slashEB(" / ");
-static const Data wireEB(" from(wire)");
-static const Data ftuEB(" from(tu)");
-static const Data tlsdEB(" tlsd=");
 EncodeStream&
 SipMessage::encodeBrief(EncodeStream& str) const
 {
@@ -878,7 +1013,11 @@ SipMessage::setStartLine(const char* st, int len)
    else
    {
       // Request
+      try{
       mStartLine = new (mStartLineMem) RequestLine(st, len);
+      }catch(...){
+         
+      }
       //!dcm! should invoke the responseline parser here once it does limited validation
       mRequest = true;
    }
@@ -934,9 +1073,17 @@ SipMessage::setBody(const char* start, UInt32 len)
             }
 
             mInvalid=true; 
+            try{
             mReason->append("Malformed Content-Length",24);
+            }catch(...){
+               
+            }
             InfoLog(<< "Malformed Content-Length. Ignoring. " << e);
+            try{
             header(h_ContentLength).value()=len;
+            }catch(...){
+               
+            }
          }
          
          UInt32 contentLength=const_header(h_ContentLength).value();
@@ -985,7 +1132,7 @@ SipMessage::setBody(const char* start, UInt32 len)
 void
 SipMessage::setRawBody(const HeaderFieldValue& body)
 {
-   setContents(0);
+   setContents(NULL);
    mContentsHfv = body;
 }
 
@@ -996,10 +1143,10 @@ SipMessage::setContents(auto_ptr<Contents> contents)
    Contents* contentsP = contents.release();
 
    delete mContents;
-   mContents = 0;
+   mContents = NULL;
    mContentsHfv.clear();
 
-   if (contentsP == 0)
+   if (contentsP == NULL)
    {
       // The semantics of setContents(0) are to delete message contents
       remove(h_ContentType);
@@ -1041,18 +1188,26 @@ SipMessage::setContents(const Contents* contents)
 { 
    if (contents)
    {
+      try{
       setContents(auto_ptr<Contents>(contents->clone()));
+      }catch(...){
+         
+      }
    }
    else
    {
-      setContents(auto_ptr<Contents>(0));
+      try{
+      setContents(auto_ptr<Contents>(NULL));
+      }catch(...){
+         
+      }
    }
 }
 
 Contents*
 SipMessage::getContents() const
 {
-   if (mContents == 0 && mContentsHfv.getBuffer() != 0)
+   if (mContents == NULL && mContentsHfv.getBuffer() != 0)
    {
       if (empty(h_ContentType) ||
             !const_header(h_ContentType).isWellFormed())
@@ -1286,10 +1441,18 @@ SipMessage::header(const RequestLineType& l)
    resip_assert (!isResponse());
    if (mStartLine == 0 )
    { 
+      try{
       mStartLine = new (mStartLineMem) RequestLine;
+      }catch(...){
+         
+      }
       mRequest = true;
    }
-   return *static_cast<RequestLine*>(mStartLine);
+   return try{
+      *static_cast<RequestLine*>(mStartLine);
+   }catch(...){
+      
+   }
 }
 
 const RequestLine& 
@@ -1301,7 +1464,11 @@ SipMessage::header(const RequestLineType& l) const
       // request line missing
       resip_assert(false);
    }
-   return *static_cast<RequestLine*>(mStartLine);
+   return try{
+      *static_cast<RequestLine*>(mStartLine);
+   }catch(...){
+      
+   }
 }
 
 StatusLine& 
@@ -1310,10 +1477,19 @@ SipMessage::header(const StatusLineType& l)
    resip_assert (!isRequest());
    if (mStartLine == 0 )
    { 
+      try{
       mStartLine = new (mStartLineMem) StatusLine;
+      }catch(...){
+         
+      }
       mResponse = true;
    }
-   return *static_cast<StatusLine*>(mStartLine);
+   return 
+   try{
+   *static_cast<StatusLine*>(mStartLine);
+   }catch(...){
+      
+   }
 }
 
 const StatusLine& 
@@ -1325,13 +1501,18 @@ SipMessage::header(const StatusLineType& l) const
       // status line missing
       resip_assert(false);
    }
-   return *static_cast<StatusLine*>(mStartLine);
+   return 
+   try{
+   *static_cast<StatusLine*>(mStartLine);
+   }catch(...){
+      
+   }
 }
 
 HeaderFieldValueList* 
 SipMessage::ensureHeaders(Headers::Type type)
 {
-   HeaderFieldValueList* hfvl=0;
+   HeaderFieldValueList* hfvl=NULL;
    if(mHeaderIndices[type]!=0)
    {
       if(mHeaderIndices[type]<0)
@@ -1419,168 +1600,7 @@ SipMessage::remove(Headers::Type type)
    }
 };
 
-#ifndef PARTIAL_TEMPLATE_SPECIALIZATION
 
-#undef defineHeader
-#define defineHeader(_header, _name, _type, _rfc)                                                       \
-const H_##_header::Type&                                                                                \
-SipMessage::header(const H_##_header& headerType) const                                                 \
-{                                                                                                       \
-   HeaderFieldValueList* hfvs = ensureHeader(headerType.getTypeNum());                           \
-   if (hfvs->getParserContainer() == 0)                                                                 \
-   {                                                                                                    \
-      SipMessage* nc_this(const_cast<SipMessage*>(this)); \
-      hfvs->setParserContainer(nc_this->makeParserContainer<H_##_header::Type>(hfvs, headerType.getTypeNum()));  \
-   }                                                                                                    \
-   return static_cast<ParserContainer<H_##_header::Type>*>(hfvs->getParserContainer())->front();       \
-}                                                                                                       \
-                                                                                                        \
-H_##_header::Type&                                                                                      \
-SipMessage::header(const H_##_header& headerType)                                                       \
-{                                                                                                       \
-   HeaderFieldValueList* hfvs = ensureHeader(headerType.getTypeNum());                           \
-   if (hfvs->getParserContainer() == 0)                                                                 \
-   {                                                                                                    \
-      hfvs->setParserContainer(makeParserContainer<H_##_header::Type>(hfvs, headerType.getTypeNum()));  \
-   }                                                                                                    \
-   return static_cast<ParserContainer<H_##_header::Type>*>(hfvs->getParserContainer())->front();       \
-}
-
-#undef defineMultiHeader
-#define defineMultiHeader(_header, _name, _type, _rfc)                                          \
-const H_##_header##s::Type&                                                                     \
-SipMessage::header(const H_##_header##s& headerType) const                                      \
-{                                                                                               \
-   HeaderFieldValueList* hfvs = ensureHeaders(headerType.getTypeNum());                  \
-   if (hfvs->getParserContainer() == 0)                                                         \
-   {                                                                                            \
-      SipMessage* nc_this(const_cast<SipMessage*>(this)); \
-      hfvs->setParserContainer(nc_this->makeParserContainer<H_##_header##s::ContainedType>(hfvs, headerType.getTypeNum()));        \
-   }                                                                                            \
-   return *static_cast<H_##_header##s::Type*>(hfvs->getParserContainer());                     \
-}                                                                                               \
-                                                                                                \
-H_##_header##s::Type&                                                                           \
-SipMessage::header(const H_##_header##s& headerType)                                            \
-{                                                                                               \
-   HeaderFieldValueList* hfvs = ensureHeaders(headerType.getTypeNum());                  \
-   if (hfvs->getParserContainer() == 0)                                                         \
-   {                                                                                            \
-      hfvs->setParserContainer(makeParserContainer<H_##_header##s::ContainedType>(hfvs, headerType.getTypeNum()));        \
-   }                                                                                            \
-   return *static_cast<H_##_header##s::Type*>(hfvs->getParserContainer());                     \
-}
-
-defineHeader(ContentDisposition, "Content-Disposition", Token, "RFC 3261");
-defineHeader(ContentEncoding, "Content-Encoding", Token, "RFC 3261");
-defineHeader(MIMEVersion, "Mime-Version", Token, "RFC 3261");
-defineHeader(Priority, "Priority", Token, "RFC 3261");
-defineHeader(Event, "Event", Token, "RFC 3265");
-defineHeader(SubscriptionState, "Subscription-State", Token, "RFC 3265");
-defineHeader(SIPETag, "SIP-ETag", Token, "RFC 3903");
-defineHeader(SIPIfMatch, "SIP-If-Match", Token, "RFC 3903");
-defineHeader(ContentId, "Content-ID", Token, "RFC 2045");
-defineMultiHeader(AllowEvents, "Allow-Events", Token, "RFC 3265");
-defineHeader(Identity, "Identity", StringCategory, "RFC 4474");
-defineMultiHeader(AcceptEncoding, "Accept-Encoding", Token, "RFC 3261");
-defineMultiHeader(AcceptLanguage, "Accept-Language", Token, "RFC 3261");
-defineMultiHeader(Allow, "Allow", Token, "RFC 3261");
-defineMultiHeader(ContentLanguage, "Content-Language", Token, "RFC 3261");
-defineMultiHeader(ProxyRequire, "Proxy-Require", Token, "RFC 3261");
-defineMultiHeader(Require, "Require", Token, "RFC 3261");
-defineMultiHeader(Supported, "Supported", Token, "RFC 3261");
-defineMultiHeader(Unsupported, "Unsupported", Token, "RFC 3261");
-defineMultiHeader(SecurityClient, "Security-Client", Token, "RFC 3329");
-defineMultiHeader(SecurityServer, "Security-Server", Token, "RFC 3329");
-defineMultiHeader(SecurityVerify, "Security-Verify", Token, "RFC 3329");
-defineMultiHeader(RequestDisposition, "Request-Disposition", Token, "RFC 3841");
-defineMultiHeader(Reason, "Reason", Token, "RFC 3326");
-defineMultiHeader(Privacy, "Privacy", PrivacyCategory, "RFC 3323");
-defineMultiHeader(PMediaAuthorization, "P-Media-Authorization", Token, "RFC 3313");
-defineHeader(ReferSub, "Refer-Sub", Token, "RFC 4488");
-defineHeader(AnswerMode, "Answer-Mode", Token, "draft-ietf-answermode-01");
-defineHeader(PrivAnswerMode, "Priv-Answer-Mode", Token, "draft-ietf-answermode-01");
-
-defineMultiHeader(Accept, "Accept", Mime, "RFC 3261");
-defineHeader(ContentType, "Content-Type", Mime, "RFC 3261");
-
-defineMultiHeader(CallInfo, "Call-Info", GenericUri, "RFC 3261");
-defineMultiHeader(AlertInfo, "Alert-Info", GenericUri, "RFC 3261");
-defineMultiHeader(ErrorInfo, "Error-Info", GenericUri, "RFC 3261");
-defineHeader(IdentityInfo, "Identity-Info", GenericUri, "RFC 4474");
-
-defineMultiHeader(RecordRoute, "Record-Route", NameAddr, "RFC 3261");
-defineMultiHeader(Route, "Route", NameAddr, "RFC 3261");
-defineMultiHeader(Contact, "Contact", NameAddr, "RFC 3261");
-defineHeader(From, "From", NameAddr, "RFC 3261");
-defineHeader(To, "To", NameAddr, "RFC 3261");
-defineHeader(ReplyTo, "Reply-To", NameAddr, "RFC 3261");
-defineHeader(ReferTo, "Refer-To", NameAddr, "RFC 3515");
-defineHeader(ReferredBy, "Referred-By", NameAddr, "RFC 3892");
-defineMultiHeader(Path, "Path", NameAddr, "RFC 3327");
-defineMultiHeader(AcceptContact, "Accept-Contact", NameAddr, "RFC 3841");
-defineMultiHeader(RejectContact, "Reject-Contact", NameAddr, "RFC 3841");
-defineMultiHeader(PAssertedIdentity, "P-Asserted-Identity", NameAddr, "RFC 3325");
-defineMultiHeader(PPreferredIdentity, "P-Preferred-Identity", NameAddr, "RFC 3325");
-defineHeader(PCalledPartyId, "P-Called-Party-ID", NameAddr, "RFC 3455");
-defineMultiHeader(PAssociatedUri, "P-Associated-URI", NameAddr, "RFC 3455");
-defineMultiHeader(ServiceRoute, "Service-Route", NameAddr, "RFC 3608");
-
-defineHeader(ContentTransferEncoding, "Content-Transfer-Encoding", StringCategory, "RFC ?");
-defineHeader(Organization, "Organization", StringCategory, "RFC 3261");
-defineHeader(SecWebSocketKey, "Sec-WebSocket-Key", StringCategory, "RFC 6455");
-defineHeader(SecWebSocketKey1, "Sec-WebSocket-Key1", StringCategory, "draft-hixie- thewebsocketprotocol-76");
-defineHeader(SecWebSocketKey2, "Sec-WebSocket-Key2", StringCategory, "draft-hixie- thewebsocketprotocol-76");
-defineHeader(Origin, "Origin", StringCategory, "draft-hixie- thewebsocketprotocol-76");
-defineHeader(Host, "Host", StringCategory, "draft-hixie- thewebsocketprotocol-76");
-defineHeader(SecWebSocketAccept, "Sec-WebSocket-Accept", StringCategory, "RFC 6455");
-defineMultiHeader(Cookie, "Cookie", StringCategory, "RFC 6265");
-defineHeader(Server, "Server", StringCategory, "RFC 3261");
-defineHeader(Subject, "Subject", StringCategory, "RFC 3261");
-defineHeader(UserAgent, "User-Agent", StringCategory, "RFC 3261");
-defineHeader(Timestamp, "Timestamp", StringCategory, "RFC 3261");
-
-defineHeader(ContentLength, "Content-Length", UInt32Category, "RFC 3261");
-defineHeader(MaxForwards, "Max-Forwards", UInt32Category, "RFC 3261");
-defineHeader(MinExpires, "Min-Expires", Uint32Category, "RFC 3261");
-defineHeader(RSeq, "RSeq", UInt32Category, "RFC 3261");
-
-// !dlb! this one is not quite right -- can have (comment) after field value
-defineHeader(RetryAfter, "Retry-After", UInt32Category, "RFC 3261");
-defineHeader(FlowTimer, "Flow-Timer", UInt32Category, "RFC 5626");
-
-defineHeader(Expires, "Expires", ExpiresCategory, "RFC 3261");
-defineHeader(SessionExpires, "Session-Expires", ExpiresCategory, "RFC 4028");
-defineHeader(MinSE, "Min-SE", ExpiresCategory, "RFC 4028");
-
-defineHeader(CallID, "Call-ID", CallID, "RFC 3261");
-defineHeader(Replaces, "Replaces", CallID, "RFC 3891");
-defineHeader(InReplyTo, "In-Reply-To", CallID, "RFC 3261");
-defineHeader(Join, "Join", CallId, "RFC 3911");
-defineHeader(TargetDialog, "Target-Dialog", CallId, "RFC 4538");
-
-defineHeader(AuthenticationInfo, "Authentication-Info", Auth, "RFC 3261");
-defineMultiHeader(Authorization, "Authorization", Auth, "RFC 3261");
-defineMultiHeader(ProxyAuthenticate, "Proxy-Authenticate", Auth, "RFC 3261");
-defineMultiHeader(ProxyAuthorization, "Proxy-Authorization", Auth, "RFC 3261");
-defineMultiHeader(WWWAuthenticate, "Www-Authenticate", Auth, "RFC 3261");
-
-defineHeader(CSeq, "CSeq", CSeqCategory, "RFC 3261");
-defineHeader(Date, "Date", DateCategory, "RFC 3261");
-defineMultiHeader(Warning, "Warning", WarningCategory, "RFC 3261");
-defineMultiHeader(Via, "Via", Via, "RFC 3261");
-defineHeader(RAck, "RAck", RAckCategory, "RFC 3262");
-defineMultiHeader(RemotePartyId, "Remote-Party-ID", NameAddr, "draft-ietf-sip-privacy-04"); // ?bwc? Not in 3323, should we keep?
-defineMultiHeader(HistoryInfo, "History-Info", NameAddr, "RFC 4244");
-
-defineHeader(PAccessNetworkInfo, "P-Access-Network-Info", Token, "RFC 3455");
-defineHeader(PChargingVector, "P-Charging-Vector", Token, "RFC 3455");
-defineHeader(PChargingFunctionAddresses, "P-Charging-Function-Addresses", Token, "RFC 3455");
-defineMultiHeader(PVisitedNetworkID, "P-Visited-Network-ID", TokenOrQuotedStringCategory, "RFC 3455");
-
-defineMultiHeader(UserToUser, "User-to-User", TokenOrQuotedStringCategory, "draft-ietf-cuss-sip-uui-17");
-
-#endif
 
 const HeaderFieldValueList*
 SipMessage::getRawHeader(Headers::Type headerType) const
@@ -1596,7 +1616,7 @@ SipMessage::getRawHeader(Headers::Type headerType) const
 void
 SipMessage::setRawHeader(const HeaderFieldValueList* hfvs, Headers::Type headerType)
 {
-   HeaderFieldValueList* copy=0;
+   HeaderFieldValueList* copy=NULL;
    if (mHeaderIndices[headerType] == 0)
    {
       mHeaderIndices[headerType]=mHeaders.size();
