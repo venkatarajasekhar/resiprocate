@@ -254,8 +254,16 @@ DialogUsageManager::onAllHandlesDestroyed()
          case ShutdownRequested:
             InfoLog (<< "DialogUsageManager::onAllHandlesDestroyed: removing TU");
             //assert(mHandleMap.empty());
+            try{
             mShutdownState = RemovingTransactionUser;
+            }catch(...){
+              
+            }
+            try{
             mStack.unregisterTransactionUser(*this);
+            }catch(...){
+              
+            }
             break;
          default:
             break;
@@ -271,7 +279,11 @@ DialogUsageManager::shutdown(DumShutdownHandler* h)
    
    mDumShutdownHandler = h;
    mShutdownState = ShutdownRequested;
+   try{
    mStack.requestTransactionUserShutdown(*this);
+   }catch(...){
+     
+   }
    shutdownWhenEmpty();
 }
 
@@ -408,8 +420,16 @@ void
 DialogUsageManager::addTimer(DumTimeout::Type type, unsigned long duration,
                              BaseUsageHandle target, unsigned int cseq, unsigned int rseq)
 {
+   try{
    DumTimeout t(type, duration, target, cseq, rseq);
+   }catch(...){
+     
+   }
+   try{
    mStack.post(t, duration, this);
+   }catch(...){
+     
+   }
 }
 
 void
@@ -417,8 +437,15 @@ DialogUsageManager::addTimerMs(DumTimeout::Type type, unsigned long duration,
                                BaseUsageHandle target, unsigned int cseq, unsigned int rseq,
                                const Data &transactionId /*= Data::Empty*/)
 {
+   try{
    DumTimeout t(type, duration, target, cseq, rseq, transactionId);
+   }catch(...){
+     }
+     try{
    mStack.postMS(t, duration, this);
+     }catch(...){
+       
+     }
 }
 
 void
@@ -483,20 +510,38 @@ DialogUsageManager::setServerPagerMessageHandler(ServerPagerMessageHandler* hand
 void
 DialogUsageManager::addExternalMessageHandler(ExternalMessageHandler* handler)
 {
-   std::vector<ExternalMessageHandler*>::iterator found = std::find(mExternalMessageHandlers.begin(), mExternalMessageHandlers.end(), handler);
+   std::vector<ExternalMessageHandler*>::iterator found;
+   try{
+   found = std::find(mExternalMessageHandlers.begin(), mExternalMessageHandlers.end(), handler);
+   }catch(...){
+     
+   }
    if (found == mExternalMessageHandlers.end())
    {
+      try{
       mExternalMessageHandlers.push_back(handler);
+      }catch(...){
+        
+      }
    }
 }
 
 void 
 DialogUsageManager::removeExternalMessageHandler(ExternalMessageHandler* handler)
 {
-   std::vector<ExternalMessageHandler*>::iterator found = std::find(mExternalMessageHandlers.begin(), mExternalMessageHandlers.end(), handler);
+   std::vector<ExternalMessageHandler*>::iterator found;
+   try{
+   found = std::find(mExternalMessageHandlers.begin(), mExternalMessageHandlers.end(), handler);
+   }catch(...){
+     
+   }
    if (found != mExternalMessageHandlers.end())
    {
+      try{
       mExternalMessageHandlers.erase(found);
+      }catch(...){
+        
+      }
    }
 }
 
@@ -504,7 +549,11 @@ void
 DialogUsageManager::clearExternalMessageHandler()
 {
    std::vector<ExternalMessageHandler*> empty;
+   try{
    empty.swap(mExternalMessageHandlers);
+   }catch(...){
+     
+   }
 }
 
 
@@ -517,10 +566,15 @@ DialogUsageManager::makeUacDialogSet(BaseCreator* creator, AppDialogSet* appDs)
       throw DumException("Cannot create new sessions when DUM is shutting down.", __FILE__, __LINE__);
    }
 
-   if (appDs == 0)
+   if (appDs == NULL)
    {
+      try{
       appDs = new AppDialogSet(*this);
+      }catch(...){
+        
+      }
    }
+   try
    DialogSet* ds = new DialogSet(creator, *this);
 
    appDs->mDialogSet = ds;
