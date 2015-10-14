@@ -1,5 +1,5 @@
-#ifndef RESIP_Data_hxx
-#define RESIP_Data_hxx
+#ifndef RESIP_Data_hpp
+#define RESIP_Data_hpp
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -10,10 +10,10 @@
 #include <bitset>
 #include "rutil/ResipAssert.h"
 
-#include "rutil/compat.hxx"
-#include "rutil/DataStream.hxx"
-#include "rutil/HeapInstanceCounter.hxx"
-#include "rutil/HashMap.hxx"
+#include "rutil/compat.hpp"
+#include "rutil/DataStream.hpp"
+#include "rutil/HeapInstanceCounter.hpp"
+#include "rutil/HashMap.hpp"
 
 #ifndef RESIP_DATA_LOCAL_SIZE
 #define RESIP_DATA_LOCAL_SIZE 16
@@ -36,10 +36,10 @@ namespace resip
    corruption that would result otherwise.
 **/
 template <int S>
-struct DataLocalSize
+typedef struct DataLocalSize
 {
       explicit DataLocalSize(size_t) {}
-};
+}S_DataLocalSize;
 
 // .bwc. Pack class Data; has to come before doxygen block though.
 #pragma pack(4)
@@ -91,10 +91,26 @@ class Data
       typedef UInt32 size_type;
 
       inline Data()
-         : mBuf(mPreBuffer),
-           mSize(0),
-           mCapacity(LocalAlloc),
-           mShareEnum(Borrow)
+         : try{
+            mBuf(mPreBuffer)
+            }catch(...){
+               
+            },
+           try{
+              mSize(0)
+              }catch(...){
+                 
+              },
+           try{
+              mCapacity(LocalAlloc)
+              }catch(...){
+                 
+              },
+           try{
+              mShareEnum(Borrow)
+           }catch(...){
+              
+           }
       {
          mBuf[mSize] = 0;
       }
@@ -206,7 +222,7 @@ class Data
       explicit Data(UInt64 value);
 
 #ifndef RESIP_FIXED_POINT
-      enum DoubleDigitPrecision 
+      typedef enum class DoubleDigitPrecision 
       {
          ZeroDigitPrecision = 0, OneDigitPrecision, 
          TwoDigitPrecision, ThreeDigitPrecision, 
@@ -214,7 +230,7 @@ class Data
          SixDigitPrecision, SevenDigitPrecision,
          EightDigitPrecision, NineDigitPrecision,
          TenDigitPrecision, MaxDigitPrecision
-      };
+      }E_DoubleDigitPrecision;
       /**
         Converts the passed in value into ascii-decimal
         representation, and then creates a "Data" containing
@@ -243,7 +259,7 @@ class Data
       /**
         The various memory management behaviors.
       */
-      enum ShareEnum 
+      typedef enum class ShareEnum 
       {
         /** The Data instance is borrowing the memory from the passed
             in buffer. It will modify its contents as necessary,
@@ -262,7 +278,7 @@ class Data
             "new char[]" so that it can be freed with "delete char[]".
         */
         Take=2
-      };
+      }E_DataShareEnum;
 
       /**
         Creates a Data from the passed-in buffer.
@@ -389,9 +405,17 @@ class Data
       template<class T>
       static Data from(const T& x)
       {
+         try{
          Data d;
+         }catch(...){
+            
+         }
          {
+            try{
             DataStream s(d);
+            }catch(...){
+               
+            }
             s << x;
          }
          return d;
@@ -600,12 +624,12 @@ class Data
          return mBuf + mSize;
       }
 
-      typedef enum
+      typedef enum class EncodingType
       {
          BINARY,
          BASE64,
          HEX
-      } EncodingType;
+      } E_EncodingType;
 
       /**
         Computes the MD5 hash of the current data.
@@ -933,8 +957,8 @@ class Data
 
         @deprecated dlb -- pass a 256 array of bits rather than a function.
       */      
-      template<class Predicate> EncodeStream& 
-          escapeToStream(EncodeStream& str, 
+      template<class Predicate> 
+      EncodeStream& escapeToStream(EncodeStream& str, 
                          Predicate shouldEscape) const;
 
       /**
@@ -977,7 +1001,9 @@ class Data
       /** Trade off between in-object and heap allocation
           Larger LocalAlloc makes for larger objects that have Data members but
           bulk allocation/deallocation of Data  members. */
-      enum {LocalAlloc = RESIP_DATA_LOCAL_SIZE };
+      typedef enum class HeapAlloc{
+         LocalAlloc = RESIP_DATA_LOCAL_SIZE 
+      }E_HeapAlloc;
 
       char* mBuf;
       size_type mSize;
