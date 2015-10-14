@@ -5,11 +5,11 @@
 #include <iostream>
 #include <map>
 
-#include <rutil/ConfigParse.hxx>
+#include <rutil/ConfigParse.hpp>
 
-#include "resip/stack/NameAddr.hxx"
-#include "resip/stack/Uri.hxx"
-#include "rutil/Data.hxx"
+#include "resip/stack/NameAddr.hpp"
+#include "resip/stack/Uri.hpp"
+#include "rutil/Data.hpp"
 
 class DialerConfiguration : public resip::ConfigParse {
 
@@ -23,52 +23,110 @@ public:
    using resip::ConfigParse::getConfigValue;
 
    void setDialerIdentity(const resip::NameAddr& dialerIdentity)
-      { mDialerIdentity = dialerIdentity; };
+      { 
+         mDialerIdentity = dialerIdentity; 
+      }
    const resip::NameAddr& getDialerIdentity() 
-      { return mDialerIdentity; };
+      { 
+         return mDialerIdentity; 
+         
+      }
    void setAuthRealm(const resip::Data& authRealm)
-      { mAuthRealm = authRealm; };
+      { 
+         mAuthRealm = authRealm; 
+         
+      }
    const resip::Data& getAuthRealm()
-      { return mAuthRealm; };
+      { 
+         return mAuthRealm; 
+         
+      }
    void setAuthUser(const resip::Data& authUser) 
-      { mAuthUser = authUser; };
+      { 
+         mAuthUser = authUser; 
+         
+      }
    const resip::Data& getAuthUser() 
-      { return mAuthUser; };
+      { 
+         return mAuthUser; 
+         
+      }
    void setAuthPassword(const resip::Data& authPassword)
-      { mAuthPassword = authPassword; };
+      { 
+         mAuthPassword = authPassword; 
+         
+      }
    const resip::Data& getAuthPassword()
-      { return mAuthPassword; };
+      { 
+         return mAuthPassword; 
+         
+      }
    void setCallerUserAgentAddress(const resip::Uri& callerUserAgentAddress)
-      { mCallerUserAgentAddress = callerUserAgentAddress; };
+      { 
+         mCallerUserAgentAddress = callerUserAgentAddress; 
+         
+      }
    const resip::Uri& getCallerUserAgentAddress()
-      { return mCallerUserAgentAddress; };
-   typedef enum
+      { 
+         return mCallerUserAgentAddress;
+         }
+   typedef enum class UserAgent
    {
       Generic,
       LinksysSPA941,
       AlertInfo,
       Cisco7940
-   } UserAgentVariety;
-   void setCallerUserAgentVariety(UserAgentVariety callerUserAgentVariety)
-      { mCallerUserAgentVariety = callerUserAgentVariety; };
-   const UserAgentVariety getCallerUserAgentVariety()
-      { return mCallerUserAgentVariety; };
+   } E_UserAgent;
+   void setCallerUserAgentVariety(E_UserAgent callerUserAgentVariety)
+      { 
+         mCallerUserAgentVariety = callerUserAgentVariety; 
+         
+      }
+   const E_UserAgent getCallerUserAgentVariety()
+      { 
+         return mCallerUserAgentVariety; 
+         
+      }
    void setTargetPrefix(const resip::Data& targetPrefix)
-      { mTargetPrefix = targetPrefix; };
+      { 
+         mTargetPrefix = targetPrefix; 
+         
+      }
    const resip::Data& getTargetPrefix() 
-      { return mTargetPrefix; };
+      { 
+         return mTargetPrefix; 
+         
+      }
    void setTargetDomain(const resip::Data& targetDomain)
-      { mTargetDomain = targetDomain; };
+      { 
+         mTargetDomain = targetDomain; 
+         
+      }
    const resip::Data& getTargetDomain() 
-      { return mTargetDomain; };
+      { 
+         return mTargetDomain; 
+         
+      }
    void setCertPath(const resip::Data& certPath)
-      { mCertPath = certPath; };
+      { 
+         mCertPath = certPath; 
+         
+      }
    const resip::Data& getCertPath()
-      { return mCertPath; };
+      { 
+         return mCertPath; 
+         
+      }
    void setCADirectory(const resip::Data& caDirectory)
-      { mCADirectory = caDirectory; };
+      { 
+         mCADirectory = caDirectory; 
+         
+      }
    const resip::Data& getCADirectory()
-      { return mCADirectory; };
+      { 
+         return mCADirectory; 
+         
+      }
 
 protected:
 
