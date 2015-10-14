@@ -17,12 +17,12 @@ class DialInstance {
 public:
    DialInstance(const DialerConfiguration& dialerConfiguration, const resip::Uri& targetUri);
    
-   typedef enum 
+   typedef enum class DialResult
    {
       ReferSuccessful,
       ReferUnsuccessful,
       Error
-   } DialResult;
+   } E_DialResult;
    DialResult execute();
 
 protected:
@@ -61,14 +61,14 @@ private:
    // MyInviteSessionHandler will notify us of progress
    friend class MyInviteSessionHandler;
 
-   typedef enum 
+   typedef enum class DialProgress
    {
       Dialing,
       Connected,
       ReferSent,
       Done
-   } DialProgress;
-   DialProgress mProgress;
+   } E_DialProgress;
+   E_DialProgress mProgress;
 
    time_t mReferSentTime;
 
