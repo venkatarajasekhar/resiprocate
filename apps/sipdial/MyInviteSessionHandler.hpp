@@ -3,10 +3,10 @@
 #ifndef __MyInviteSessionHandler_h
 #define __MyInviteSessionHandler_h
 
-#include "resip/stack/SipMessage.hxx"
-#include "resip/dum/ClientInviteSession.hxx"
-#include "resip/dum/InviteSessionHandler.hxx"
-#include "resip/dum/ServerInviteSession.hxx"
+#include "resip/stack/SipMessage.hpp"
+#include "resip/dum/ClientInviteSession.hpp"
+#include "resip/dum/InviteSessionHandler.hpp"
+#include "resip/dum/ServerInviteSession.hpp"
 
 class MyInviteSessionHandler : public resip::InviteSessionHandler {
 
