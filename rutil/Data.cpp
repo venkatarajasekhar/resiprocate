@@ -25,7 +25,11 @@
 using namespace resip;
 using namespace std;
 
+try{
 const Data Data::Empty("", 0);
+}catch(...){
+   
+}
 const Data::size_type Data::npos = UINT_MAX;
 
 Data::PreallocateType::PreallocateType(int)
@@ -52,30 +56,19 @@ const bool DataHelper::isCharHex[256] =
    false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  //e
    false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false,  false   //f
 };
+try{
+vector<const bool> v_isCharHex(DataHelper::isCharHex);
+}catch(...){
+   
+}
 
 //must be lowercase for MD5
-static const char hexmap[] = "0123456789abcdef";
-
-static const char inversehexmap[] = {
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,     // 0 - 
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1,             //   - 47
-
-          0, 1, 2, 3, 4, 5, 6, 7, 8, 9,         // 48 ...
-
-                                     -1, -1,    // 58 -
-    -1, -1, -1, -1, -1,                         //  -64
-
-          10, 11, 12, 13, 14, 15,               // 65 ...
-
-        -1, -1, -1, -1, -1, -1, -1, -1, -1,     // 71 ...
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+static const char hexmap[] = "0123456789abcdef";, -1, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1,                 //   - 96
 
           10, 11, 12, 13, 14, 15                // 97 ...
 };
+vector<static const char>v_inversehexmap(inversehexmap);
 
 int 
 hexpair2int(char high, char low)
@@ -217,14 +210,26 @@ Data::init(DataLocalSize<RESIP_DATA_LOCAL_SIZE> arg)
 
 Data::Data(size_type capacity,
            const Data::PreallocateType&) 
-   : mBuf(capacity > LocalAlloc 
+   : try{
+   mBuf(capacity > LocalAlloc 
           ? new char[capacity + 1]
-          : mPreBuffer),
+          : mPreBuffer)
+          }catch(...){
+             
+          },
      mSize(0),
+     try{ 
      mCapacity(capacity > LocalAlloc
                ? capacity
-               : LocalAlloc),
-     mShareEnum(capacity > LocalAlloc ? Take : Borrow)
+               : LocalAlloc)
+               }catch(...){
+                  
+               },
+     try{
+        mShareEnum(capacity > LocalAlloc ? Take : Borrow)
+     }catch(...){
+        
+     }
 {
    resip_assert( capacity >= 0 );
    mBuf[mSize] = 0;
@@ -233,14 +238,26 @@ Data::Data(size_type capacity,
 #ifdef DEPRECATED_PREALLOC
 // pre-allocate capacity
 Data::Data(size_type capacity, bool) 
-   : mBuf(capacity > LocalAlloc 
+   : try{
+      mBuf(capacity > LocalAlloc 
           ? new char[capacity + 1]
-          : mPreBuffer),
+          : mPreBuffer)
+          }catch(...){
+             
+          },
      mSize(0),
+     try{
      mCapacity(capacity > LocalAlloc
                ? capacity
-               : LocalAlloc),
-     mShareEnum(capacity > LocalAlloc ? Take : Borrow)
+               : LocalAlloc)
+               }catch(...){
+                  
+               },
+     try{
+        mShareEnum(capacity > LocalAlloc ? Take : Borrow)
+     }catch(...){
+        
+     }
 {
    resip_assert( capacity >= 0 );
    mBuf[mSize] = 0;
@@ -249,22 +266,46 @@ Data::Data(size_type capacity, bool)
 
 Data::Data(const char* str, size_type length) 
 {
+   try{
    initFromString(str, length);
+   }catch(...){
+      
+   }
 }
 
 Data::Data(const unsigned char* str, size_type length) 
 {
+   try{
    initFromString((const char*)str, length);
+   }catch(...){
+      
+   }
 }
 
 // share memory KNOWN to be in a surrounding scope
 // wears off on, c_str, operator=, operator+=, non-const
 // operator[], append, reserve
 Data::Data(const char* str, size_type length, bool) 
-   : mBuf(const_cast<char*>(str)),
-     mSize(length),
-     mCapacity(mSize),
-     mShareEnum(Share)
+   : try{
+      mBuf(const_cast<char*>(str))
+      }catch(...){
+         
+      },
+      try{
+     mSize(length)}
+     catch(...){
+        
+     },
+     try{
+        mCapacity(mSize)
+        }catch(...){
+           
+        },
+     try{
+        mShareEnum(Share)
+     }catch(...){
+        
+     }
 {
    resip_assert(str);
 }
@@ -285,7 +326,11 @@ Data::initFromString(const char* str, size_type len)
    }
    if(bytes > LocalAlloc)
    {
+      try{
       mBuf = new char[bytes];
+      }catch(...){
+         
+      }
       mCapacity = mSize;
       mShareEnum = Take;
    }
@@ -297,13 +342,22 @@ Data::initFromString(const char* str, size_type len)
    }
    if(str)
    {
+      try{
       memcpy(mBuf, str, len);
+      }catch(...){
+         
+      }
    }
    mBuf[mSize] = 0;
 }
 
 Data::Data(ShareEnum se, const char* buffer, size_type length)
-   : mBuf(const_cast<char*>(buffer)),
+   : try
+     {
+        mBuf(const_cast<char*>(buffer))
+        }catch(...){
+           
+        },
      mSize(length),
      mCapacity(mSize),
      mShareEnum(se)
@@ -312,25 +366,61 @@ Data::Data(ShareEnum se, const char* buffer, size_type length)
 }
 
 Data::Data(ShareEnum se, const char* buffer, size_type length, size_type capacity)
-   : mBuf(const_cast<char*>(buffer)),
-     mSize(length),
-     mCapacity(capacity),
-     mShareEnum(se)
+   : try{
+      mBuf(const_cast<char*>(buffer))
+      }catch(...){
+         
+      },
+      try{
+     mSize(length)
+     }catch(...){
+        
+     },
+     try{
+        mCapacity(capacity)
+        }catch(...){
+           
+        },
+     try{
+        mShareEnum(se)
+     }catch(...){
+        
+     }
 {
    resip_assert(buffer);
 }
 
 Data::Data(ShareEnum se, const char* buffer)
-   : mBuf(const_cast<char*>(buffer)),
-     mSize(strlen(buffer)),
-     mCapacity(mSize),
-     mShareEnum(se)
+   : try{
+      mBuf(const_cast<char*>(buffer))
+      }catch(...){
+         
+      },
+     try{
+        mSize(strlen(buffer))
+        }catch(...){
+           
+        },
+     try{
+     mCapacity(mSize)
+     }catch(...){
+        
+     },
+     try{
+        mShareEnum(se)
+     }catch(...){
+        
+     }
 {
    resip_assert(buffer);
 }
 
 Data::Data(ShareEnum se, const Data& staticData)
-   : mBuf(staticData.mBuf),
+   : try{
+      mBuf(staticData.mBuf)
+      }catch(...){
+         
+      },
      mSize(staticData.mSize),
      mCapacity(mSize),
      mShareEnum(Share)
@@ -349,12 +439,20 @@ Data::Data(const char* str)
 
 Data::Data(const string& str)
 {
+   try{
    initFromString(str.c_str(), str.size());
+   }catch(...){
+      
+   }
 }
 
 Data::Data(const Data& data) 
 {
+   try{
    initFromString(data.mBuf, data.mSize);
+   }catch(...){
+      
+   }
 }
 
 #ifdef RESIP_HAS_RVALUE_REFS
@@ -374,14 +472,27 @@ static const int MaxLongSize = (sizeof(unsigned long)/sizeof(int))*Int32MaxSize;
 static const int UInt64MaxSize = 20;
 
 Data::Data(Int32 val)
-   : mBuf(Int32MaxSize > LocalAlloc 
+   : try{
+      mBuf(Int32MaxSize > LocalAlloc 
           ? new char[Int32MaxSize + 1]
-          : mPreBuffer),
+          : mPreBuffer)
+          }catch(...){
+             
+          },
      mSize(0),
-     mCapacity(Int32MaxSize > LocalAlloc
+     try
+     {
+        mCapacity(Int32MaxSize > LocalAlloc
                ? Int32MaxSize
-               : LocalAlloc),
+               : LocalAlloc)
+               }catch(...){
+                  
+               },
+     try{
      mShareEnum(Int32MaxSize > LocalAlloc ? Take : Borrow)
+     }catch(...){
+        
+     }
 {
    if (val == 0)
    {
@@ -432,14 +543,30 @@ Data::Data(Int32 val)
 static const int DoubleMaxSize = UInt64MaxSize + Data::MaxDigitPrecision;
 Data::Data(double value, 
            Data::DoubleDigitPrecision precision)
-   : mBuf(DoubleMaxSize + precision > LocalAlloc 
+   :try{ 
+   mBuf(DoubleMaxSize + precision > LocalAlloc 
           ? new char[DoubleMaxSize + precision + 1]
-          : mPreBuffer),
-     mSize(0),
+          : mPreBuffer)
+          }catch(...){
+             
+          },
+          try{
+     mSize(0)
+     }catch(...){
+        
+     },
+     try{
      mCapacity(DoubleMaxSize + precision > LocalAlloc
                ? DoubleMaxSize + precision
-               : LocalAlloc),
+               : LocalAlloc)
+               }catch(...){
+                  
+               },
+     try{
      mShareEnum(DoubleMaxSize + precision > LocalAlloc ? Take : Borrow)
+     }catch(...){
+        
+     }
 {
    resip_assert(precision >= 0);
    resip_assert(precision < MaxDigitPrecision);
@@ -464,8 +591,11 @@ Data::Data(double value,
    }
 
    int dec = (int)floor(v+0.5);
+   try{
    Data d(precision, Data::Preallocate);
-
+   }catch(...){
+      
+   }
    if (dec == 0)
    {
       d = "0";
@@ -496,9 +626,17 @@ Data::Data(double value,
    if (neg)
    {
       mBuf[0] = '-';
+      try{
       memcpy(mBuf+1, m.mBuf, m.size());
+      }catch(...){
+         
+      }
       mBuf[1+m.size()] = '.';
+      try{
       memcpy(mBuf+1+m.size()+1, d.mBuf, d.size()+1);
+      }catch(...){
+         
+      }
       mSize = m.size() + d.size() + 2;
    }
    else
@@ -507,9 +645,17 @@ Data::Data(double value,
       {
          resize(m.size() + d.size() + 1, false);
       }
+      try{
       memcpy(mBuf, m.mBuf, m.size());
+      }catch(...){
+         
+      }
       mBuf[m.size()] = '.';
+      try{
       memcpy(mBuf+m.size()+1, d.mBuf, d.size()+1);
+      }catch(...){
+         
+      }
       mSize = m.size() + d.size() + 1;
    }
 
@@ -518,14 +664,26 @@ Data::Data(double value,
 #endif
 
 Data::Data(UInt32 value)
-   : mBuf(Int32MaxSize > LocalAlloc 
+   : try{
+      mBuf(Int32MaxSize > LocalAlloc 
           ? new char[Int32MaxSize + 1]
-          : mPreBuffer),
+          : mPreBuffer)
+          }catch(...){
+             
+          },
      mSize(0),
+     try{
      mCapacity(Int32MaxSize > LocalAlloc
                ? Int32MaxSize
-               : LocalAlloc),
-     mShareEnum(Int32MaxSize > LocalAlloc ? Take : Borrow)
+               : LocalAlloc)
+               }catch(...){
+                  
+               },
+     try{
+        mShareEnum(Int32MaxSize > LocalAlloc ? Take : Borrow)
+     }catch(...){
+        
+     }
 {
    if (value == 0)
    {
@@ -556,14 +714,26 @@ Data::Data(UInt32 value)
 }
 
 Data::Data(UInt64 value)
-   : mBuf(UInt64MaxSize > LocalAlloc 
+   : try{
+      mBuf(UInt64MaxSize > LocalAlloc 
           ? new char[UInt64MaxSize + 1]
-          : mPreBuffer),
-     mSize(0),
+          : mPreBuffer)
+          }catch(...){
+             
+          },
+     try{
+     mSize(0)
+     }catch(...){
+        
+     },
+     try{
      mCapacity(UInt64MaxSize > LocalAlloc
                ? UInt64MaxSize
                : LocalAlloc),
      mShareEnum(UInt64MaxSize > LocalAlloc ? Take : Borrow)
+     }catch(...){
+        
+     }
 {
    if (value == 0)
    {
@@ -595,24 +765,56 @@ Data::Data(UInt64 value)
 
 static const int CharMaxSize = 1;
 Data::Data(char c)
-   : mBuf(CharMaxSize > LocalAlloc 
+   : try{
+     mBuf(CharMaxSize > LocalAlloc 
           ? new char[CharMaxSize + 1]
-          : mPreBuffer),
-     mSize(1),
+          : mPreBuffer)
+          }catch(...){
+             
+          },
+     try{
+     mSize(1)
+     }catch(...){
+        
+     },
+     try{
      mCapacity(CharMaxSize > LocalAlloc
                ? CharMaxSize
-               : LocalAlloc),
+               : LocalAlloc)
+               }catch(...){
+                  
+               },
+     try{
      mShareEnum(CharMaxSize > LocalAlloc ? Take : Borrow)
+     }catch(...){
+        
+     }
 {
    mBuf[0] = c;
    mBuf[1] = 0;
 }
 
 Data::Data(bool value)
-   : mBuf(value ? const_cast<char*>("true") : const_cast<char*>("false")),
-     mSize(value ? 4 : 5), 
-     mCapacity(value ? 4 : 5),
+   : try{
+      mBuf(value ? const_cast<char*>("true") : const_cast<char*>("false"))
+      }catch(...){
+         
+      },
+     try{
+        mSize(value ? 4 : 5)
+        }catch(...){
+           
+        }, 
+     try{
+        mCapacity(value ? 4 : 5)
+        }catch(...){
+           
+        },
+     try{
      mShareEnum(Borrow)
+     }catch(...){
+        
+     }
 {}
 
 Data&
@@ -641,7 +843,11 @@ Data::takeBuf(Data& other)
    if ( other.mBuf == other.mPreBuffer )
    {
       // plus one picks up the terminating safety NULL
+      try{
       memcpy( mPreBuffer, other.mPreBuffer, other.mSize+1);
+      }catch(...){
+         
+      }
       mBuf = mPreBuffer;
    }
    else
