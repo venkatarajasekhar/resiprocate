@@ -1,16 +1,20 @@
-#ifndef RESIP_ConnectionBase_hxx
-#define RESIP_ConnectionBase_hxx
+#ifndef RESIP_ConnectionBase_hpp
+#define RESIP_ConnectionBase_hpp
 
 #include <deque>
 #include <list>
 
-#include "rutil/Timer.hxx"
+#include "rutil/Timer.hpp"
 // #include "rutil/Fifo.hxx"
-#include "resip/stack/Transport.hxx"
-#include "resip/stack/MsgHeaderScanner.hxx"
-#include "resip/stack/SendData.hxx"
-#include "resip/stack/WsFrameExtractor.hxx"
-#include "resip/stack/Cookie.hxx"
+#include "resip/stack/Transport.hpp"
+#include "resip/stack/MsgHeaderScanner.hpp"
+#include "resip/stack/SendData.hpp"
+#include "resip/stack/WsFrameExtractor.hpp"
+#include "resip/stack/Cookie.hpp"
+#include "resip/stack/TransactionMessage.hpp"
+#include "resip/stack/Compression.hpp"
+//Need to add the header files where class Stack, class TcpStream is defined.
+
 
 namespace osc
 {
@@ -50,13 +54,17 @@ class ConnectionBase
       const UInt64& whenLastUsed() { return mLastUsed; }
       void resetLastUsed() { mLastUsed = Timer::getTimeMs(); }
 
-      enum { ChunkSize = 8192 }; // !jf! what is the optimal size here?
+      typedef enum class DataSize
+      { 
+         ChunkSize = 8192 
+         
+      }E_DataSize; // !jf! what is the optimal size here?
          // !dp! 8192 seems to be consistent with a multiple of a page size and
          //      also good for the larger SDP coming in with ICE attributes,
          //      multiple media streams, etc
 
    protected:
-      enum ConnState
+      typedef enum class ConnState
       {
          NewMessage = 0,
          ReadingHeaders,
@@ -64,16 +72,16 @@ class ConnectionBase
          SigComp, // This indicates that incoming bytes are compressed.
          WebSocket,
          MAX
-      };
+      }E_ConnState;
 
-      typedef enum
+      typedef enum class TransmissionFormat
       {
          Unknown,
          Uncompressed,
          Compressed,
          WebSocketHandshake,
          WebSocketData,
-      } TransmissionFormat;
+      }E_TransmissionFormat;
 
       ConnState getCurrentState() const { return mConnState; }
       bool preparseNewBytes(int bytesRead);
