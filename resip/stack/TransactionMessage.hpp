@@ -1,9 +1,9 @@
-#ifndef RESIP_TransactionMessage_hxx
-#define RESIP_TransactionMessage_hxx
+#ifndef RESIP_TransactionMessage_hpp
+#define RESIP_TransactionMessage_hpp
 
 #include "rutil/ResipAssert.h"
-#include "resip/stack/Message.hxx"
-#include "rutil/HeapInstanceCounter.hxx"
+#include "resip/stack/Message.hpp"
+#include "rutil/HeapInstanceCounter.hpp"
 
 namespace resip
 {
