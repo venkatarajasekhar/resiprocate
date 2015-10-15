@@ -1,5 +1,8 @@
-#if !defined(RESIP_COMPRESSION_HXX)
-#define RESIP_COMPRESSION_HXX
+#if !defined(RESIP_COMPRESSION_HPP)
+#define RESIP_COMPRESSION_HPP
+
+//Need to define the header files for the class state handler and the class stack
+
 
 namespace osc
 {
@@ -13,13 +16,18 @@ namespace resip
 class Compression
 {
    public:
-     typedef enum
+     typedef enum class Algorithm
      {
        NONE,
        DEFLATE
-     } Algorithm;
+     }E_Algorithm;
 
-     Compression(Algorithm algorithm         = DEFLATE,
+     Compression(
+         try{
+         Algorithm algorithm         = DEFLATE
+         }catch(...){
+             
+         },
                  int stateMemorySize         = 8192,
                  int cyclesPerBit            = 64,
                  int decompressionMemorySize = 8192,
