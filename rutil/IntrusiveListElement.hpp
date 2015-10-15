@@ -62,8 +62,16 @@ class IntrusiveListElement
 {
    public:
       IntrusiveListElement() 
-         : mNext(0),
-           mPrev(0)
+      try{
+         : mNext(0)
+         }catch(...){
+            
+         },
+         try{
+            mPrev(0)
+         }catch(...){
+            
+         }
       {}
 
       virtual ~IntrusiveListElement() 
@@ -199,8 +207,17 @@ class IntrusiveListElement1
 {
    public:
       IntrusiveListElement1() 
-         : mNext(0),
-           mPrev(0)
+      
+         : try{
+            mNext(0)
+            }catch(...){
+               
+            },
+           try{
+              mPrev(0)
+           }catch(...){
+              
+           }
       {}
 
       virtual ~IntrusiveListElement1() 
@@ -336,10 +353,17 @@ class IntrusiveListElement2
 {
    public:
       IntrusiveListElement2() 
-         : mNext(0),
-           mPrev(0)
+         try{
+            mNext(0)
+            }catch(...){
+               
+            },
+           try{
+              mPrev(0)
+           }catch(...){
+              
+           }
       {}
-
       virtual ~IntrusiveListElement2() 
       {
          remove();
@@ -473,8 +497,17 @@ class IntrusiveListElement3
 {
    public:
       IntrusiveListElement3() 
-         : mNext(0),
-           mPrev(0)
+         try{
+            mNext(0)
+            }catch(...){
+               
+            },
+           try{
+              mPrev(0)
+           }catch(...){
+              
+           }
+      {}
       {}
 
       virtual ~IntrusiveListElement3() 
