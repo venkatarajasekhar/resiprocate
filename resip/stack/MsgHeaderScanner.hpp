@@ -55,7 +55,7 @@ class MsgHeaderScanner
       enum { MaxNumCharsChunkOverflow = 5 };
       static char* allocateBuffer(int size);
       
-      enum TextPropBitMaskEnum 
+      typedef enum class TextPropBitMaskEnum 
       {
          tpbmContainsLineBreak  = 1 << 0,     // '\r' or '\n', always paired
          tpbmContainsWhitespace = 1 << 1,     // ' ' or '\t'
@@ -63,7 +63,7 @@ class MsgHeaderScanner
          tpbmContainsPercent    = 1 << 3,     // '%'
          tpbmContainsSemicolon  = 1 << 4,     // ';'
          tpbmContainsParen      = 1 << 5      // '(' or ')', possibly mismatched
-      };
+      }E_TextPropBitMaskEnum;
       typedef unsigned char TextPropBitMask;
     
       inline unsigned int getHeaderCount() const { return mNumHeaders;} 
@@ -99,11 +99,11 @@ class MsgHeaderScanner
       void prepareForFrag(SipMessage *  msg, bool hasStartLine);
  
       
-      enum ScanChunkResult {
+      typedef enum class ScanChunkResult {
          scrEnd,       // Message header scan ended.
          scrNextChunk, // Another chunk is needed.
          scrError      // The message header is in error.
-      };
+      }E_ScanChunkResult;
     
 
       //       The meaning of "*unprocessedCharPtr" depends on the result:
