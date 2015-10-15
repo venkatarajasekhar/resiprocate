@@ -443,7 +443,11 @@ Connection::enableFlowTimer()
       mFlowTimerEnabled = true;
 
       // ensure connection is in a FlowTimer LRU list on the connection manager
+      try{
       getConnectionManager().moveToFlowTimerLru(this);
+      }catch(...){
+        
+      }
    }
 }
 
@@ -455,7 +459,11 @@ Connection::onDoubleCRLF()
    if(InteropHelper::getOutboundVersion()>=8)
    {
       DebugLog(<<"Sending response CRLF (aka pong).");
+      try{
       requestWrite(new SendData(mWho,Symbols::CRLF,Data::Empty,Data::Empty));
+      }catch(...){
+        
+      }
    }
 }
 
@@ -463,7 +471,11 @@ void
 Connection::onSingleCRLF()
 {
    DebugLog(<<"Received response CRLF (aka pong).");
+   try{
    mTransport->keepAlivePong(mWho);
+   }catch(...){
+     
+   }
 }
 
 bool 
@@ -488,7 +500,11 @@ Connection::checkConnectionTimedout()
       if (errNum == ETIMEDOUT || errNum == EHOSTUNREACH || errNum == ECONNREFUSED)
       {
          InfoLog(<< "Exception on socket " << mWho.mFlowKey << " code: " << errNum << "; closing connection");
+         try{
          setFailureReason(TransportFailure::ConnectionException, errNum);
+         }catch(...){
+           
+         }
          delete this;
          return true;
       }
@@ -517,12 +533,18 @@ Connection::processPollEvent(FdPollEventMask mask) {
     */
    if ( mask & FPEM_Error ) 
    {
-      Socket fd = getSocket();
-      int errNum = getSocketError(fd);
-      InfoLog(<< "Exception on socket " << fd << " code: " << errNum << "; closing connection");
-      setFailureReason(TransportFailure::ConnectionException, errNum);
-      delete this;
-      return;
+       try{
+       Socket SocketfdObj;      //Ctor
+       }catch(...){
+         
+       }
+      //Need to implement on C++
+      
+      
+      
+      
+      
+      
    }
    if ( mask & FPEM_Write ) 
    {
