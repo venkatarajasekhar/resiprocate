@@ -10,7 +10,7 @@
    http://www.boost.org/libs/smart_ptr/shared_ptr.htm
 */
 
-#include "rutil/SharedCount.hxx"
+#include "rutil/SharedCount.hpp"
 #include <memory>               // for std::auto_ptr
 #include <algorithm>            // for std::swap
 #include <functional>           // for std::less
@@ -55,7 +55,8 @@ template<> struct SharedPtr_traits<void const volatile>
 
 // enable_shared_from_this support
 
-template<class T, class Y> void sp_enable_shared_from_this( shared_count const & pn, resip::enable_shared_from_this<T> const * pe, Y const * px )
+template<class T, class Y> 
+void sp_enable_shared_from_this( shared_count const & pn, resip::enable_shared_from_this<T> const * pe, Y const * px )
 {
    if(pe != 0) pe->_internal_weak_this._internal_assign(const_cast<Y*>(px), pn);
 }
@@ -70,7 +71,8 @@ inline void sp_enable_shared_from_this( shared_count const & /*pn*/, ... )
    The object pointed to is deleted when the last SharedPtr pointing to it
    is destroyed or reset.
 */
-template<class T> class SharedPtr
+template<class T> 
+class SharedPtr
 {
 private:
 
@@ -84,12 +86,32 @@ public:
    typedef T * pointer;
    typedef typename SharedPtr_traits<T>::reference reference;
 
-   SharedPtr(): px(0), pn() // never throws in 1.30+
+   SharedPtr(): 
+   try{
+   px(0)
+   }catch(...){
+      
+   }, 
+   try{
+   pn() // never throws in 1.30+
+   }catch(...){
+      
+   }
    {
    }
 
    template<class Y>
-   explicit SharedPtr(Y * p): px(p), pn(p, checked_deleter<Y>()) // Y must be complete
+   explicit SharedPtr(Y * p): 
+   try{
+   px(p)
+   }catch(...){
+      
+   }, 
+   try{
+   pn(p, checked_deleter<Y>()) // Y must be complete
+   }catch(...){
+      
+   }
    {
        sp_enable_shared_from_this( pn, p, p );
    }
@@ -100,7 +122,18 @@ public:
    // SharedPtr will release p by calling d(p)
    //
 
-   template<class Y, class D> SharedPtr(Y * p, D d): px(p), pn(p, d)
+   template<class Y, class D> 
+   SharedPtr(Y * p, D d): 
+   try{
+   px(p)
+   }catch(...){
+      
+   }, 
+   try{
+   pn(p, d)
+   }catch(...){
+      
+   }
    {
        sp_enable_shared_from_this( pn, p, p );
    }
@@ -151,7 +184,17 @@ public:
    }
 
    template<class Y>
-   explicit SharedPtr(std::auto_ptr<Y> & r): px(r.get()), pn()
+   explicit SharedPtr(std::auto_ptr<Y> & r): 
+   try{
+   px(r.get())
+   }catch(...){
+      
+   }, 
+   try{
+   pn()
+   }catch(...){
+      
+   }
    {
       Y * tmp = r.get();
       pn = shared_count(r);
@@ -178,13 +221,15 @@ public:
       this_type().swap(*this);
    }
 
-   template<class Y> void reset(Y * p) // Y must be complete
+   template<class Y> 
+   void reset(Y * p) // Y must be complete
    {
       resip_assert(p == 0 || p != px); // catch self-reset errors
       this_type(p).swap(*this);
    }
 
-   template<class Y, class D> void reset(Y * p, D d)
+   template<class Y, class D> 
+   void reset(Y * p, D d)
    {
       this_type(p, d).swap(*this);
    }
