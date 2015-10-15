@@ -1,16 +1,23 @@
-#ifndef RESIP_Connection_hxx
-#define RESIP_Connection_hxx
+#ifndef RESIP_Connection_hpp
+#define RESIP_Connection_hpp
 
 #include <list>
 
-#include "resip/stack/ConnectionBase.hxx"
-//#include "rutil/Fifo.hxx"
-#include "rutil/Socket.hxx"
-#include "rutil/FdPoll.hxx"
-#include "rutil/Timer.hxx"
-#include "resip/stack/Transport.hxx"
-#include "resip/stack/MsgHeaderScanner.hxx"
-#include "rutil/IntrusiveListElement.hxx"
+#include "resip/stack/ConnectionBase.hpp"
+//#include "rutil/Fifo.hpp"
+#include "rutil/Socket.hpp"
+#include "rutil/FdPoll.hpp"
+#include "rutil/Timer.hpp"
+#include "resip/stack/Transport.hpp"
+#include "resip/stack/MsgHeaderScanner.hpp"
+#include "rutil/IntrusiveListElement.hpp"
+#include "resip/stack/Connection.hpp"
+#include "resip/stack/ConnectionManager.hpp"
+#include "resip/stack/Compression.hpp"
+#include "resip/stack/ssl/TlsConnection.hpp"
+#include "resip/stack/Message.hpp"
+
+//Need to add the header files for the class Message,class TlsConnection
 
 namespace resip
 {
@@ -32,6 +39,8 @@ typedef IntrusiveListElement3<Connection*> FlowTimerLruList;
     recently used garbage collection.
     Connection inherits three different instantiations of intrusive lists.
 */
+//Multiple inheritance using C++
+
 class Connection : public ConnectionBase, 
                    public ConnectionLruList, 
                    public ConnectionReadList, 
