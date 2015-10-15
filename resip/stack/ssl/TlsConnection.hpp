@@ -1,15 +1,15 @@
-#if !defined(TlsConnection_hxx)
-#define TlsConnection_hxx
+#if !defined(TlsConnection_hpp)
+#define TlsConnection_hpp
 
 #if defined(HAVE_CONFIG_H)
   #include "config.h"
 #endif
 
 
-#include "resip/stack/Connection.hxx"
-#include "rutil/HeapInstanceCounter.hxx"
-#include "resip/stack/SecurityTypes.hxx"
-#include "resip/stack/ssl/Security.hxx"
+#include "resip/stack/Connection.hpp"
+#include "rutil/HeapInstanceCounter.hpp"
+#include "resip/stack/SecurityTypes.hpp"
+#include "resip/stack/ssl/Security.hpp"
 
 // If USE_SSL is not defined, this will not be built, and this header will 
 // not be installed. If you are including this file from a source tree, and are 
@@ -51,7 +51,13 @@ class TlsConnection : public Connection
       
       void getPeerNames(std::list<Data> & peerNames) const;
       
-      typedef enum TlsState { Initial, Broken, Handshaking, Up } TlsState;
+      typedef enum classTlsState 
+      { 
+        Initial, 
+        Broken, 
+        Handshaking, 
+        Up 
+      } TlsState;
       static const char * fromState(TlsState);
    
    private:
@@ -63,10 +69,21 @@ class TlsConnection : public Connection
 
       bool mServer;
       Security* mSecurity;
+      try{
       SecurityTypes::SSLType mSslType;
+      }catch(...){
+        
+      }
+      try{
       Data mDomain;
-      
+      }catch(...){
+        
+      }
+      try{
       TlsState mTlsState;
+      }catch(...){
+        
+      }
       bool mHandShakeWantsRead;
 
       SSL* mSsl;
