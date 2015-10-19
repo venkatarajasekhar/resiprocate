@@ -5,19 +5,86 @@
 
 #include "rutil/ResipAssert.h"
 
-#include "resip/stack/HeaderFieldValue.hxx"
-#include "resip/stack/HeaderFieldValueList.hxx"
-#include "resip/stack/ParserContainerBase.hxx"
-#include "resip/stack/Embedded.hxx"
-#include "rutil/WinLeakCheck.hxx"
+#include "resip/stack/HeaderFieldValue.hpp"
+#include "resip/stack/HeaderFieldValueList.hpp"
+#include "resip/stack/ParserContainerBase.hpp"
+#include "resip/stack/Embedded.hpp"
+#include "rutil/WinLeakCheck.hpp"
 
 using namespace resip;
 
-const HeaderFieldValueList HeaderFieldValueList::Empty;
+HeaderFieldValueList* HeaderFieldValueList::m_Empty = NULL; 
 
+HeaderFieldValueList* HeaderFieldValueList::Instance()
+{
+   if (!m_Empty)  
+      try{
+      m_Empty = new HeaderFieldValueList;
+      }catch(bad_alloc&){
+      cout << "Error allocating the requested memory." << endl;
+      }
+   return m_Empty;
+}
+
+ void push_back(const char* buffer, size_t length, bool own) throw size_t
+ {
+         try{
+         mHeaders.push_back(HeaderFieldValue::Empty);
+         }catch(...){
+            cout << "Default Error handling ." << endl;
+         }
+         try{
+         mHeaders.back().init(buffer,length,own);
+         }catch(...){
+            cout << "Default Error handling ." << endl;
+         }
+ }
+HeaderFieldValueList()
+         : 
+         try{
+         mHeaders()
+         }catch(...){
+            cout << "A default exception occurred!" << endl;
+         }, 
+         try{
+         mPool(0)
+         }catch(...){
+           cout << "A default exception occurred!" << endl; 
+         },
+         try{
+           mParserContainer(0) 
+         }catch(...){
+            cout << "A default exception occurred!" << endl;
+         }  
+      {}
+
+      HeaderFieldValueList(PoolBase& pool)
+         : 
+         try{
+         mHeaders(StlPoolAllocator<HeaderFieldValue, PoolBase>(&pool))
+         }catch(...){
+            cout << "A default exception occurred!" << endl;
+         },
+         try{
+          mPool(&pool)
+          }catch(...){
+             cout << "A default exception occurred!" << endl;
+          },
+           try{
+           mParserContainer(NULL)
+           }catch(...){
+              cout << "A default exception occurred!" << endl;
+           }
+      {}
+      
 HeaderFieldValueList::~HeaderFieldValueList()
 {
+   try{
    freeParserContainer();
+   }
+   catch(...){
+      cout << "A default exception occurred!" << endl;
+   }
 }
 
 HeaderFieldValueList::HeaderFieldValueList(const HeaderFieldValueList& rhs)
@@ -25,6 +92,7 @@ HeaderFieldValueList::HeaderFieldValueList(const HeaderFieldValueList& rhs)
      mPool(0),
      mParserContainer(0)
 {
+   /*
    if (rhs.mParserContainer)
    {
       mParserContainer = rhs.mParserContainer->clone();
@@ -33,13 +101,22 @@ HeaderFieldValueList::HeaderFieldValueList(const HeaderFieldValueList& rhs)
    {
       mHeaders=rhs.mHeaders;
    }
+   */
+   //Copy Ctor Implementation required here.
+   
 }
-
+//usage 
 HeaderFieldValueList::HeaderFieldValueList(const HeaderFieldValueList& rhs, PoolBase& pool)
-   : mHeaders(StlPoolAllocator<HeaderFieldValue, PoolBase>(&pool)),
+   : try{
+     mHeaders(StlPoolAllocator<HeaderFieldValue, PoolBase>(&pool))
+     }catch(...){
+        cout << "A default exception occurred!" << endl;
+     },
      mPool(&pool),
-     mParserContainer(0)
+     mParserContainer(NULL)
 {
+   
+   /*
    if (rhs.mParserContainer)
    {
       mParserContainer = rhs.mParserContainer->clone();
@@ -48,6 +125,9 @@ HeaderFieldValueList::HeaderFieldValueList(const HeaderFieldValueList& rhs, Pool
    {
       mHeaders=rhs.mHeaders;
    }
+   */
+   //Copy Ctor Implementation required here.
+   
 }
 
 HeaderFieldValueList&
@@ -58,7 +138,8 @@ HeaderFieldValueList::operator=(const HeaderFieldValueList& rhs)
       mHeaders.clear();
 
       freeParserContainer();
-
+      
+      /*
       if (rhs.mParserContainer != 0)
       {
          mParserContainer = rhs.mParserContainer->clone();
@@ -67,6 +148,9 @@ HeaderFieldValueList::operator=(const HeaderFieldValueList& rhs)
       {
          mHeaders=rhs.mHeaders;
       }
+      */
+   //Copy Ctor Implementation required here.
+      
    }
    
    return *this;
