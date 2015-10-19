@@ -1,11 +1,11 @@
-#if !defined(RESIP_HEADERFIELDVALUELIST_HXX)
-#define RESIP_HEADERFIELDVALUELIST_HXX 
+#if !defined(RESIP_HEADERFIELDVALUELIST_HPP)
+#define RESIP_HEADERFIELDVALUELIST_HPP 
 
 #include <iosfwd>
 #include <vector>
 
-#include "rutil/StlPoolAllocator.hxx"
-#include "rutil/PoolBase.hxx"
+#include "rutil/StlPoolAllocator.hpp"
+#include "rutil/PoolBase.hpp"
 
 namespace resip
 {
@@ -20,20 +20,9 @@ class HeaderFieldValue;
 class HeaderFieldValueList
 {
    public:
-      static const HeaderFieldValueList Empty;
-
-      HeaderFieldValueList()
-         : mHeaders(), 
-           mPool(0),
-           mParserContainer(0)
-      {}
-
-      HeaderFieldValueList(PoolBase& pool)
-         : mHeaders(StlPoolAllocator<HeaderFieldValue, PoolBase>(&pool)),
-           mPool(&pool),
-           mParserContainer(0)
-      {}
-
+      //static const HeaderFieldValueList Empty;
+      //Modified the code using the design pattern of singleton to have the single instance of the class
+      static HeaderFieldValueList* instance();
       ~HeaderFieldValueList();
       HeaderFieldValueList(const HeaderFieldValueList& rhs);
       HeaderFieldValueList(const HeaderFieldValueList& rhs, PoolBase& pool);
@@ -63,11 +52,8 @@ class HeaderFieldValueList
             you pass for this param, you must ensure that the buffer is not 
             deleted during the lifetime of this HeaderFieldValueList.
       */
-      void push_back(const char* buffer, size_t length, bool own) 
-      {
-         mHeaders.push_back(HeaderFieldValue::Empty); 
-         mHeaders.back().init(buffer,length,own);
-      }
+      void push_back(const char* buffer, size_t length, bool own); 
+     
 
       //void pop_front() {mHeaders.pop_front();}
       void pop_back() {mHeaders.pop_back();};
@@ -84,6 +70,7 @@ class HeaderFieldValueList
       bool parsedEmpty() const;
    private:
       typedef std::vector<HeaderFieldValue, StlPoolAllocator<HeaderFieldValue, PoolBase > >  ListImpl;
+      static HeaderFieldValueList* m_Empty;
    public:
       typedef ListImpl::iterator iterator;
       typedef ListImpl::const_iterator const_iterator;
