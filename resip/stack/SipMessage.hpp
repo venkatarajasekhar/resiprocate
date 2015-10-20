@@ -1,5 +1,5 @@
-#if !defined(RESIP_SIPMESSAGE_HXX)
-#define RESIP_SIPMESSAGE_HXX 
+#if !defined(RESIP_SIPMESSAGE_HPP)
+#define RESIP_SIPMESSAGE_HPP
 
 #include <sys/types.h>
 
@@ -8,24 +8,24 @@
 #include <utility>
 #include <memory> 
 
-#include "resip/stack/Contents.hxx"
-#include "resip/stack/Headers.hxx"
-#include "resip/stack/TransactionMessage.hxx"
-#include "resip/stack/ParserContainer.hxx"
-#include "resip/stack/ParserCategories.hxx"
-#include "resip/stack/SecurityAttributes.hxx"
-#include "resip/stack/Tuple.hxx"
-#include "resip/stack/Uri.hxx"
-#include "resip/stack/MessageDecorator.hxx"
-#include "resip/stack/Cookie.hxx"
-#include "resip/stack/WsCookieContext.hxx"
-#include "rutil/BaseException.hxx"
-#include "rutil/Data.hxx"
-#include "rutil/DinkyPool.hxx"
-#include "rutil/StlPoolAllocator.hxx"
-#include "rutil/Timer.hxx"
-#include "rutil/HeapInstanceCounter.hxx"
-#include "rutil/SharedPtr.hxx"
+#include "resip/stack/Contents.hpp"
+#include "resip/stack/Headers.hpp"
+#include "resip/stack/TransactionMessage.hpp"
+#include "resip/stack/ParserContainer.hpp"
+#include "resip/stack/ParserCategories.hpp"
+#include "resip/stack/SecurityAttributes.hpp"
+#include "resip/stack/Tuple.hpp"
+#include "resip/stack/Uri.hpp"
+#include "resip/stack/MessageDecorator.hpp"
+#include "resip/stack/Cookie.hpp"
+#include "resip/stack/WsCookieContext.hpp"
+#include "rutil/BaseException.hpp"
+#include "rutil/Data.hpp"
+#include "rutil/DinkyPool.hpp"
+#include "rutil/StlPoolAllocator.hpp"
+#include "rutil/Timer.hpp"
+#include "rutil/HeapInstanceCounter.hpp"
+#include "rutil/SharedPtr.hpp"
 
 namespace resip
 {
@@ -154,6 +154,8 @@ class SecurityAttributes;
 class SipMessage : public TransactionMessage
 {
    public:
+      static bool checkContentLength;
+      
       RESIP_HeapCount(SipMessage);
 #ifndef __SUNPRO_CC
       typedef std::list< std::pair<Data, HeaderFieldValueList*>, StlPoolAllocator<std::pair<Data, HeaderFieldValueList*>, PoolBase > > UnknownHeaders;
@@ -191,11 +193,10 @@ class SipMessage : public TransactionMessage
           @param isExternal true for a message generated externally, false otherwise.
           @return constructed SipMessage object
       */
-      static SipMessage* make(const Data& buffer, bool isExternal = false);
+      //static SipMessage* make(const Data& buffer, bool isExternal = false);
+      //API design for Exception handling
+      static SipMessage* make(const Data& buffer, bool isExternal = false) throw bool;
       void parseAllHeaders();
-      
-      static bool checkContentLength;
-
       /**
       @brief Base exception for SipMessage related exceptions
       */
@@ -206,12 +207,16 @@ class SipMessage : public TransactionMessage
             @brief constructor that records an exception message, the file and the line
             that the exception occured in.
             */
-            Exception(const Data& msg, const Data& file, const int line)
+            /*Exception(const Data& msg, const Data& file, const int line)  
                : BaseException(msg, file, line) {}
+               */
             /**
             @brief returns the class name of the exception instance
             @return the class name of the instance
             */
+            //API design for Exception handling
+            Exception(const Data& msg, const Data& file, const int line)  throw int
+               : BaseException(msg, file, line) {}
             const char* name() const { return "SipMessage::Exception"; }
       };
 
@@ -234,7 +239,7 @@ class SipMessage : public TransactionMessage
                  an internally generated response to an internally generated 
                  request (ie: 408), false otherwise.
       */
-      inline bool isExternal() const
+      inline bool isExternal() const throw bool
       {
          return mIsExternal;
       }
@@ -249,7 +254,7 @@ class SipMessage : public TransactionMessage
 
          @return true if the message came from an IP interface, false otherwise.
       */
-      inline bool isFromWire() const
+      inline bool isFromWire() const throw bool
       {
          return mReceivedTransportTuple.getType() != UNKNOWN_TRANSPORT;
       }
@@ -257,7 +262,7 @@ class SipMessage : public TransactionMessage
       /// @brief Check if SipMessage is a client transaction
       /// @return true if the message is external and is a response or
       /// an internally-generated request.
-      virtual bool isClientTransaction() const;
+      virtual bool isClientTransaction() const throw bool;
       
       /** @brief Generate a string from the SipMessage object
       
@@ -273,11 +278,38 @@ class SipMessage : public TransactionMessage
       EncodeStream& encodeSingleHeader(Headers::Type type, EncodeStream& str) const;
 
       /// Returns true if message is a request, false otherwise
-      inline bool isRequest() const {return mRequest;}
+      inline bool isRequest() const throw bool
+      {
+         try{
+         if(mRequest)
+         return mRequest;
+         }catch(bool mRequest){
+            cout << "Invalid Data Member bool";
+         }
+         
+      }
       /// Returns true if message is a response, false otherwise
-      inline bool isResponse() const {return mResponse;}
+      inline bool isResponse() const throw bool
+      {
+         try{
+         if(mResponse)
+         return mResponse;
+         }catch(bool mResponse){
+            cout << "Invalid Data Member bool";
+         }
+         //return mResponse;
+      }
       /// Returns true if message failed to parse, false otherwise      
-      inline bool isInvalid() const{return mInvalid;}
+      inline bool isInvalid() const throw bool
+      {
+         try{
+         if(mInvalid)
+         return mInvalid;
+         }catch(bool mInvalid){
+            cout << "Invalid Data Member bool";
+         }
+         //return mInvalid;
+      }
       
       /// @brief returns the method type of the message
       /// @see MethodTypes
@@ -459,7 +491,7 @@ class SipMessage : public TransactionMessage
       /// unknown header interface
       const StringCategories& header(const ExtensionHeader& symbol) const;
       StringCategories& header(const ExtensionHeader& symbol);
-      bool exists(const ExtensionHeader& symbol) const;
+      bool exists(const ExtensionHeader& symbol) const throw bool;
       void remove(const ExtensionHeader& symbol);
 
       /// typeless header interface
@@ -510,10 +542,14 @@ class SipMessage : public TransactionMessage
       void setBody(const char* start, UInt32 len); 
       
       /// Add HeaderFieldValue given enum, header name, pointer start, content length
-      void addHeader(Headers::Type header,
+      /*void addHeader(Headers::Type header,
                      const char* headerName, int headerLen, 
                      const char* start, int len);
-
+      */
+      //API design for Exception handling
+      void addHeader(Headers::Type header,
+                     const char* headerName, int headerLen, 
+                     const char* start, int len) throw int;
       // Returns the source tuple for the transport that the message was received from
       // only makes sense for messages received from the wire.  Differs from Source
       // since it contains the transport bind address instead of the actual source 
@@ -542,7 +578,7 @@ class SipMessage : public TransactionMessage
       void setForceTarget(const Uri& uri);
       void clearForceTarget();
       const Uri& getForceTarget() const;
-      bool hasForceTarget() const;
+      bool hasForceTarget() const throw bool;
 
       const Data& getTlsDomain() const { return mTlsDomain; }
       void setTlsDomain(const Data& domain) { mTlsDomain = domain; }
@@ -580,9 +616,9 @@ class SipMessage : public TransactionMessage
    protected:
       // !bwc! Removes or zeros all pointers to heap-allocated memory this
       // class owns.
-      void clear(bool leaveResponseStuff=false);
+      void clear(bool leaveResponseStuff=false) throw bool;
       // !bwc! Frees all heap-allocated memory owned.
-      void freeMem(bool leaveResponseStuff=false);
+      void freeMem(bool leaveResponseStuff=false) throw bool;
       // Clears mHeaders and cleans up memory
       void clearHeaders();
       
@@ -622,42 +658,36 @@ class SipMessage : public TransactionMessage
 
       void throwHeaderMissing(Headers::Type type) const;
 
-      inline HeaderFieldValueList* getEmptyHfvl()
-      {
-         void* ptr(mPool.allocate(sizeof(HeaderFieldValueList)));
-         return new (ptr) HeaderFieldValueList(mPool);
-      }
+      inline HeaderFieldValueList* getEmptyHfvl();
+      {}
 
       inline HeaderFieldValueList* getCopyHfvl(const HeaderFieldValueList& hfvl)
-      {
-         void* ptr(mPool.allocate(sizeof(HeaderFieldValueList)));
-         return new (ptr) HeaderFieldValueList(hfvl, mPool);
-      }
+      {}
 
       inline void freeHfvl(HeaderFieldValueList* hfvl)
       {
          if(hfvl)
          {
+            try{
             hfvl->~HeaderFieldValueList();
+            }catch(...){
+               cout << " Default exception occured";
+            }
+            try{
             mPool.deallocate(hfvl);
+            }catch(...){
+              cout << " Default exception occured"; 
+            }
          }
       }
 
       template<class T>
       ParserContainer<T>* makeParserContainer()
-      {
-         void* ptr(mPool.allocate(sizeof(ParserContainer<T>)));
-         return new (ptr) ParserContainer<T>(mPool);
-      }
+      {}
 
       template<class T>
       ParserContainer<T>* makeParserContainer(HeaderFieldValueList* hfvs,
-                                             Headers::Type type = Headers::UNKNOWN)
-      {
-         void* ptr(mPool.allocate(sizeof(ParserContainer<T>)));
-         return new (ptr) ParserContainer<T>(hfvs, type, mPool);
-      }
-
+                                             Headers::Type type);
       // indicates this message came from the wire or we want it to look like it 
       // came from the wire (ie. internally generated responses to an internally 
       // generated request), set by the Transport and setFromTu and setFromExternal APIs
@@ -667,8 +697,10 @@ class SipMessage : public TransactionMessage
       // To profile current sizing, enable DINKYPOOL_PROFILING in SipMessage.cxx 
       // and look for DebugLog message in SipMessage destructor to know when heap
       // allocations are occuring and how much of the pool is used.
-      DinkyPool<3732> mPool;
-
+      //Need to understand the DinkyPool
+      
+      //DinkyPool<3732> mPool;
+      
       typedef std::vector<HeaderFieldValueList*, 
                            StlPoolAllocator<HeaderFieldValueList*, 
                                           PoolBase > > TypedHeaders;
