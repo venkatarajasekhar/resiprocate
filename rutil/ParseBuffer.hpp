@@ -1,8 +1,8 @@
-#if !defined(RESIP_PARSEBUFFER_HXX)
-#define RESIP_PARSEBUFFER_HXX 
+#if !defined(RESIP_PARSEBUFFER_HPP)
+#define RESIP_PARSEBUFFER_HPP 
 
-#include "rutil/Data.hxx"
-#include "rutil/ParseException.hxx"
+#include "rutil/Data.hpp"
+#include "rutil/ParseException.hpp"
 
 namespace resip
 {
@@ -125,13 +125,17 @@ class ParseBuffer
          return CurrentPosition(*this);
       }
 
-      CurrentPosition skipChar(char c);
-      CurrentPosition skipChars(const char* cs);
-      CurrentPosition skipChars(const Data& cs);
+      //CurrentPosition skipChar(char c);
+      //CurrentPosition skipChars(const char* cs);
+      //CurrentPosition skipChars(const Data& cs);
+      CurrentPosition skipChar(char c) throw c;
+      CurrentPosition skipChars(const char* cs) throw const char*;
+      CurrentPosition skipChars(const Data& cs) = delete;
       CurrentPosition skipNonWhitespace();
       CurrentPosition skipWhitespace();
       CurrentPosition skipLWS();
       CurrentPosition skipToTermCRLF();
+      
       CurrentPosition skipToChar(char c)
       {
          mPosition = (const char*)memchr(mPosition, c, mEnd-mPosition);
@@ -141,13 +145,18 @@ class ParseBuffer
          }
          return CurrentPosition(*this);
       }
-      CurrentPosition skipToChars(const char* cs);
-      CurrentPosition skipToChars(const Data& cs); // ?dlb? case sensitivity arg?
-      CurrentPosition skipToOneOf(const char* cs);
-      CurrentPosition skipToOneOf(const char* cs1, const char* cs2);
-      CurrentPosition skipToOneOf(const Data& cs);
-      CurrentPosition skipToOneOf(const Data& cs1, const Data& cs2);
-
+      //CurrentPosition skipToChars(const char* cs);
+      //CurrentPosition skipToChars(const Data& cs); // ?dlb? case sensitivity arg?
+      //CurrentPosition skipToOneOf(const char* cs);
+      //CurrentPosition skipToOneOf(const char* cs1, const char* cs2);
+      //CurrentPosition skipToOneOf(const Data& cs);
+      //CurrentPosition skipToOneOf(const Data& cs1, const Data& cs2);
+        CurrentPosition skipToChars(const char* cs) throw const char*;
+        CurrentPosition skipToChars(const Data& cs) = delete; // ?dlb? case sensitivity arg?
+        CurrentPosition skipToOneOf(const char* cs) throw const char*;
+        CurrentPosition skipToOneOf(const char* cs1, const char* cs2) throw const char*;
+        CurrentPosition skipToOneOf(const Data& cs) = delete;
+        CurrentPosition skipToOneOf(const Data& cs1, const Data& cs2) = delete;
       // std::bitset based parse function
       CurrentPosition skipChars(const std::bitset<256>& cs)
       {
@@ -201,7 +210,8 @@ class ParseBuffer
       // inverse of skipChar() -- end up at char not before it
       const char* skipBackChar();
       const char* skipBackWhitespace();
-      const char* skipBackN(int count)
+      
+      const char* skipBackN(int count) throw int
       {
          mPosition -= count;
          if (bof())
@@ -211,9 +221,9 @@ class ParseBuffer
          return mPosition;
       }
 
-      const char* skipBackChar(char c);
-      const char* skipBackToChar(char c);
-      const char* skipBackToOneOf(const char* cs);
+      const char* skipBackChar(char c) throw char;
+      const char* skipBackToChar(char c) throw char;
+      const char* skipBackToOneOf(const char* cs) throw const char*;
 
       void assertEof() const
       {
@@ -235,10 +245,13 @@ class ParseBuffer
                 const Data& errmsg = Data::Empty) const;
 
       /// make the passed in data share memory with the buffer (uses Data::Share)
-      void data(Data& data, const char* start) const;
-
+      //void data(Data& data, const char* start) const;
+      void data(const Data& data, const char* start) const;
+      try{
       Data data(const char* start) const;
-
+      }catch(...){
+         
+      }
       void dataUnescaped(Data& data, const char* start) const;      
       
       int integer();
