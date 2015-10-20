@@ -2,22 +2,22 @@
 #include "config.h"
 #endif
 
-#include "resip/stack/Contents.hxx"
-#include "resip/stack/Embedded.hxx"
-#include "resip/stack/OctetContents.hxx"
-#include "resip/stack/HeaderFieldValueList.hxx"
-#include "resip/stack/SipMessage.hxx"
-#include "resip/stack/ExtensionHeader.hxx"
-#include "rutil/Coders.hxx"
-#include "rutil/CountStream.hxx"
-#include "rutil/Logger.hxx"
-#include "rutil/MD5Stream.hxx"
-#include "rutil/compat.hxx"
-#include "rutil/vmd5.hxx"
-#include "rutil/Coders.hxx"
-#include "rutil/Random.hxx"
-#include "rutil/ParseBuffer.hxx"
-#include "resip/stack/MsgHeaderScanner.hxx"
+#include "resip/stack/Contents.hpp"
+#include "resip/stack/Embedded.hpp"
+#include "resip/stack/OctetContents.hpp"
+#include "resip/stack/HeaderFieldValueList.hpp"
+#include "resip/stack/SipMessage.hpp"
+#include "resip/stack/ExtensionHeader.hpp"
+#include "rutil/Coders.hpp"
+#include "rutil/CountStream.hpp"
+#include "rutil/Logger.hpp"
+#include "rutil/MD5Stream.hpp"
+#include "rutil/compat.hpp"
+#include "rutil/vmd5.hpp"
+#include "rutil/Coders.hpp"
+#include "rutil/Random.hpp"
+#include "rutil/ParseBuffer.hpp"
+#include "resip/stack/MsgHeaderScanner.hpp"
 //#include "rutil/WinLeakCheck.hxx"  // not compatible with placement new used below
 
 using namespace resip;
@@ -27,6 +27,73 @@ using namespace std;
 
 bool SipMessage::checkContentLength=true;
 
+inline SipMessage::HeaderFieldValueList* getEmptyHfvl(){
+size_t NumofBytes;
+            try{   
+            NumofBytes = mPool.allocate(sizeof(HeaderFieldValueList)));
+            }catch(...){
+               cout << "Default Exception from API allocate";
+            }
+         return
+         try{
+         new (ptr) HeaderFieldValueList(mPool);
+         }
+         catch(bad_alloc){
+            cout << "a bad_alloc exception just occured";
+         }
+}
+inline SipMessage::HeaderFieldValueList* getCopyHfvl(const HeaderFieldValueList& hfvl){
+size_t NumofBytes;
+//void* ptr(mPool.allocate(sizeof(HeaderFieldValueList)));
+            try{   
+            mPool.allocate(sizeof(HeaderFieldValueList));
+            }catch(...){
+               cout << "Default Exception from API allocate";
+            }
+         //return new (ptr) HeaderFieldValueList(hfvl, mPool);
+         return
+         try{
+         new (ptr) HeaderFieldValueList(hfvl,mPool);
+         }
+         catch(bad_alloc){
+            cout << "a bad_alloc exception occured";
+         }
+}
+template<class T>
+ParserContainer<T>* SipMessage::makeParserContainer()
+{
+   size_t NumofBytes;
+   try{ 
+   mPool.allocate(sizeof(ParserContainer<T>));
+   }catch(...){
+   cout << "Default Exception from API allocate";
+   }
+   return
+   try{
+   new (ptr) ParserContainer<T>(mPool);
+   }
+   catch(bad_alloc){
+   cout << "a bad_alloc exception occured";
+   }
+}
+template<class T>
+ParserContainer<T>* makeParserContainer(HeaderFieldValueList* hfvs,
+                                             Headers::Type type)
+  {
+   size_t NumofBytes;
+   try{ 
+   mPool.allocate(sizeof(ParserContainer<T>));
+   }catch(...){
+   cout << "Default Exception from API allocate";
+   }
+   try{
+   new (ptr) ParserContainer<T>(hfvs, type,mPool);
+   }
+   catch(bad_alloc){
+   cout << "a bad_alloc exception occured";
+   }
+  }
+  
 SipMessage::SipMessage(const Tuple *receivedTransportTuple)
    : mIsDecorated(false),
      mIsBadAck200(false),     
