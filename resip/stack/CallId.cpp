@@ -2,12 +2,12 @@
 #include "config.h"
 #endif
 
-#include "resip/stack/CallId.hxx"
-#include "resip/stack/UnknownParameter.hxx"
-#include "rutil/Data.hxx"
-#include "rutil/DnsUtil.hxx"
-#include "rutil/Logger.hxx"
-#include "rutil/ParseBuffer.hxx"
+#include "resip/stack/CallId.hpp"
+#include "resip/stack/UnknownParameter.hpp"
+#include "rutil/Data.hpp"
+#include "rutil/DnsUtil.hpp"
+#include "rutil/Logger.hpp"
+#include "rutil/ParseBuffer.hpp"
 //#include "rutil/WinLeakCheck.hxx"  // not compatible with placement new used below
 
 using namespace resip;
@@ -56,48 +56,97 @@ CallID::operator==(const CallID& rhs) const
 ParserCategory *
 CallID::clone() const
 {
-   return new CallID(*this);
+   return 
+   try{
+   new CallID(*this);
+   }catch(bad_alloc){
+   cout<<"Memory Allocation Failure through New operator";  
+   }
 }
 
 ParserCategory *
 CallID::clone(void* location) const
 {
-   return new (location) CallID(*this);
+   //return new (location) CallID(*this);
+   return 
+   try{
+   new location;
+   }catch(bad_alloc){
+   cout<<"Memory Allocation Failure through New operator";  
+   }
 }
 
 ParserCategory* 
 CallID::clone(PoolBase* pool) const
 {
-   return new (pool) CallID(*this, pool);
+   //return new (pool) CallID(*this, pool);
+   return 
+   try{
+   new pool;
+   }catch(bad_alloc){
+   cout<<"Memory Allocation Failure through New operator";  
+   }
 }
 
 Data& 
 CallID::value() 
 {
+   try{
    checkParsed(); 
+   }catch(...){
+      cout<<"Default Exception";
+   }
+   try{
+if(mValue)
    return mValue;
+   }
+   catch(...){
+      cout << "Default Exception";
+   }
 }
-
-const Data& 
-CallID::value() const 
+//void CallID::parse(ParseBuffer& pb)
+//Avoiding implicit default constructor
+void CallID::parse(const ParseBuffer& pb)= delete
 {
-   checkParsed(); 
-   return mValue;
-}
-
-void
-CallID::parse(ParseBuffer& pb)
-{
-   const char* start = pb.skipWhitespace();
-   static const std::bitset<256> wsOrSemi(Data::toBitset(ParseBuffer::Whitespace).set(Symbols::SEMI_COLON[0]));
-   pb.skipToOneOf(wsOrSemi);
+   const char* start;
+   try{
+   if(start)
+   start = pb.skipWhitespace();
+   }catch(...){
+    cout<<"Pointer Exception";  
+   }
+   //static const std::bitset<256> wsOrSemi(Data::toBitset(ParseBuffer::Whitespace).set(Symbols::SEMI_COLON[0]));
+   //pb.skipToOneOf(wsOrSemi);
+   try{
    pb.data(mValue, start);
-
+   }catch(){
+      
+   }
+   catch(){
+      
+   }
+   catch(...){
+   cout << "Default Exception"; 
+   }
+   try{ 
    parseParameters(pb);
+   }catch(const std::overflow_error& e) {
+    // this executes if f() throws std::overflow_error (same type rule)
+    cout << " OverFlow Exception";
+   }catch(const std::runtime_error& e) {
+    // this executes if f() throws std::underflow_error (base class rule)
+    cout << " Runtime Exception";
+   }catch(const std::exception& e) {
+    // this executes if f() throws std::logic_error (base class rule)
+    cout << "Logical Exception";
+   }catch(...) {
+    // this executes if f() throws std::string or int or any other unrelated type
+    cout << "Default Exception";
+   }
+
 }
 
-EncodeStream&
-CallID::encodeParsed(EncodeStream& str) const
+EncodeStream& CallID::encodeParsed(const EncodeStream& str) const
 {
    str << mValue;
    encodeParameters(str);
