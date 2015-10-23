@@ -1,16 +1,16 @@
-#ifndef RESIP_Contents_hxx
-#define RESIP_Contents_hxx
+#ifndef RESIP_Contents_hpp
+#define RESIP_Contents_hpp
 
 #include <iosfwd>
 #include <vector>
 
-#include "resip/stack/LazyParser.hxx"
-#include "resip/stack/Mime.hxx"
-#include "resip/stack/StringCategory.hxx"
-#include "resip/stack/Headers.hxx"
-#include "resip/stack/HeaderFieldValue.hxx"
-#include "rutil/Data.hxx"
-#include "resip/stack/ContentsFactory.hxx"
+#include "resip/stack/LazyParser.hpp"
+#include "resip/stack/Mime.hpp"
+#include "resip/stack/StringCategory.hpp"
+#include "resip/stack/Headers.hpp"
+#include "resip/stack/HeaderFieldValue.hpp"
+#include "rutil/Data.hpp"
+#include "resip/stack/ContentsFactory.hpp"
 
 namespace resip
 {
@@ -74,6 +74,27 @@ class Contents : public LazyParser
       Contents(const HeaderFieldValue& headerFieldValue,
                HeaderFieldValue::CopyPaddingEnum e,
                const Mime& contentsType);
+               
+      Contents& create(const HeaderFieldValue& hfv, const Mime& contentType) const;
+      /**
+        @internal
+        @todo - unimplemented - decide fate
+      */
+      Contents& getContents(const Mime&);
+      
+      //Virtual copy Ctors
+      static Contents* convert(Contents* c) const;
+      
+      /**
+        @brief access to wrapped contents (signed, encrypted)
+        @return a pointer to self
+      */
+      virtual Contents* getContents() const = 0;
+      /**
+        @brief returns a copy of a Contents object
+      */
+      virtual Contents* clone() const = 0;
+      
       virtual ~Contents();
       /**
       @brief Assignment operator
@@ -92,25 +113,9 @@ class Contents : public LazyParser
       @return a reference to str
       */
       EncodeStream& encodeHeaders(EncodeStream& str) const;
-
-      /**
-        @brief access to wrapped contents (signed, encrypted)
-        @return a pointer to self
-      */
-      virtual Contents* getContents() {return this;}
-
-      /**
-        @internal
-        @todo - unimplemented - decide fate
-      */
-      Contents* getContents(const Mime&);
-
       virtual Data getBodyData() const;
 
-      /**
-        @brief returns a copy of a Contents object
-      */
-      virtual Contents* clone() const = 0;
+      
       /**
         @brief getter for mime type of message
         @return the mime type of the message
