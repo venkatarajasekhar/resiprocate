@@ -4,20 +4,17 @@
 #include "config.h"
 #endif
 
-#include "resip/stack/Contents.hxx"
-#include "rutil/ParseBuffer.hxx"
-#include "rutil/Logger.hxx"
-#include "resip/stack/OctetContents.hxx"
-#include "rutil/MD5Stream.hxx"
-#include "rutil/WinLeakCheck.hxx"
+#include "resip/stack/Contents.hpp"
+#include "rutil/ParseBuffer.hpp"
+#include "rutil/Logger.hpp"
+#include "resip/stack/OctetContents.hpp"
+#include "rutil/MD5Stream.hpp"
+#include "rutil/WinLeakCheck.hpp"
 
 using namespace resip;
 using namespace std;
 
 #define RESIPROCATE_SUBSYSTEM Subsystem::CONTENTS
-
-H_ContentID resip::h_ContentID;
-H_ContentDescription resip::h_ContentDescription;
 
 Contents::Contents(const HeaderFieldValue& headerFieldValue,
                    const Mime& contentType) 
@@ -52,16 +49,43 @@ Contents::Contents(const HeaderFieldValue& headerFieldValue,
     mType(contentsType)
 {
    init();
+
+Contents& create(const HeaderFieldValue& hfv, const Mime& contentType) const
+      {
+         return 
+         try{
+         new T(hfv, contentType);
+         }catch(bad_alloc){
+         cout << "Exception on Memory allocation ";
+         }
+         catch(...){
+           cout << "Default Exception on Memory Allocation";
+         }
+         //Logic need to be implement if it is for copy ctor
+         
+      }
+      //Need to be analyse
+  /*
+      virtual Contents* convert(Contents* c) const
+      {
+         return dynamic_cast<T*>(c);
+      }
+      */
+      
+virtual Contents* getContents() 
+{
+  return this;
 }
-
-
 Contents::~Contents()
 {
    freeMem();
 }
-
-static const Data errorContextData("Contents");
-const Data&
+try{
+Data& errorContextData("Contents") const
+}catch(...){
+  cout << "Default exception on Calling Copy Ctor";
+}
+Data&
 Contents::errorContext() const
 {
    return errorContextData;
@@ -173,14 +197,21 @@ Contents::createContents(const Mime& contentType,
 //      delete temp;
 //   }
    
-   Contents* c;
+   Contents* c = NULL;
    if (ContentsFactoryBase::getFactoryMap().find(contentType) != ContentsFactoryBase::getFactoryMap().end())
    {
       c = ContentsFactoryBase::getFactoryMap()[contentType]->create(hfv, contentType);
    }
    else
    {
+      try{
       c = new OctetContents(hfv, contentType);
+      }catch(bad_alloc){
+        cout << "Exception on Memory allocation ";
+      }
+      catch(...){
+        cout << "Default Exception on Memory allocation ";
+      }
    }
    return c;
 }
@@ -214,12 +245,12 @@ Contents::exists(const HeaderBase& headerType) const
 bool
 Contents::exists(const MIME_Header& type) const
 {
-   if (&type == &h_ContentID)
+   if (type == &h_ContentID)
    {
       return mId != 0;
    }
    
-   if (&type == &h_ContentDescription)
+   if (type == &h_ContentDescription)
    {
       return mDescription != 0;
    }
@@ -236,19 +267,19 @@ Contents::remove(const HeaderBase& headerType)
       case Headers::ContentDisposition :
       {
          delete mDisposition;
-         mDisposition = 0;
+         mDisposition = NULL;
          break;
       }
       case Headers::ContentLanguage :
       {
          delete mLanguages;
-         mLanguages = 0;
+         mLanguages = NULL;
          break;
       }
       case Headers::ContentTransferEncoding :
       {
          delete mTransferEncoding;
-         mTransferEncoding = 0;
+         mTransferEncoding = NULL;
          break;
       }
       default :
@@ -259,19 +290,21 @@ Contents::remove(const HeaderBase& headerType)
 void
 Contents::remove(const MIME_Header& type)
 {
-   if (&type == &h_ContentID)
+   /*
+   if (type == h_ContentID)
    {
       delete mId;
-      mId = 0;
+      mId =   NULL;
       return;
    }
     
-   if (&type == &h_ContentDescription)
+   if (type == h_ContentDescription)
    {
       delete mDescription;
-      mDescription = 0;
+      mDescription = NULL;
       return;
    }
+*/
 
    resip_assert(false);
 }
