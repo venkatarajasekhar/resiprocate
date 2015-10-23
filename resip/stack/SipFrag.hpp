@@ -1,11 +1,11 @@
-#if !defined(RESIP_SIPFRAG_HXX)
-#define RESIP_SIPFRAG_HXX 
+#if !defined(RESIP_SIPFRAG_HPP)
+#define RESIP_SIPFRAG_HPP
 
 #include <map>
 
-#include "resip/stack/Contents.hxx"
-#include "resip/stack/Uri.hxx"
-#include "rutil/Data.hxx"
+#include "resip/stack/Contents.hpp"
+#include "resip/stack/Uri.hpp"
+#include "rutil/Data.hpp"
 
 namespace resip
 {
@@ -21,7 +21,8 @@ class SipMessage;
 class SipFrag : public Contents
 {
    public:
-      SipFrag(const Mime& contentsType = getStaticType());
+      //SipFrag(const Mime& contentsType = getStaticType());
+      SipFrag(const Mime& contentsType);
       SipFrag(const HeaderFieldValue& hfv, const Mime& contentsType);
       SipFrag(const Data& data, const Mime& contentsType);
       SipFrag(const SipFrag& rhs);
@@ -31,20 +32,22 @@ class SipFrag : public Contents
       /** @brief duplicate an SipFrag object
           @return pointer to a new SipFrag object  
         **/
-      virtual Contents* clone() const;
+      //virtual Contents* clone() const;
 
       static const Mime& getStaticType() ;
 
       SipMessage& message();
       const SipMessage& message() const;
 
-      virtual EncodeStream& encodeParsed(EncodeStream& str) const;
-      virtual void parse(ParseBuffer& pb);
-
+      //virtual EncodeStream& encodeParsed(EncodeStream& str) const;
+      //virtual void parse(ParseBuffer& pb);
+      //virtual EncodeStream *encodeParsed();
+      
       static bool init();
 
    private:
-      bool hasStartLine(char* buffer, int size);      
+      //bool hasStartLine(char* buffer, int size) ;    
+      bool hasStartLine(char* buffer, int size) throw char*;
       SipMessage* mMessage;
       char scratchpad[4];
 };
