@@ -1,7 +1,7 @@
 #ifndef RESIP_ContentsFactory
 #define RESIP_ContentsFactory
 
-#include "resip/stack/ContentsFactoryBase.hxx"
+#include "resip/stack/ContentsFactoryBase.hpp"
 
 namespace resip
 {
@@ -15,24 +15,23 @@ template<class T>
 class ContentsFactory : public ContentsFactoryBase
 {
    public:
-      ContentsFactory()
-         : ContentsFactoryBase(T::getStaticType())
-      {}
-
-      explicit ContentsFactory(const Mime& nonStandardType)
-         : ContentsFactoryBase(nonStandardType)
-      {}
-
-      // pass Mime instance for parameters
-      virtual Contents* create(const HeaderFieldValue& hfv, const Mime& contentType) const
-      {
-         return new T(hfv, contentType);
+      ContentsFactory(){
+       
+         try{
+         ContentsFactoryBase(T::getStaticType());
+         }catch(...){
+            cout << "Default Exception for Ctor ContentsFactoryBase";
+         }
       }
-
-      virtual Contents* convert(Contents* c) const
-      {
-         return dynamic_cast<T*>(c);
+      //Explicit Copy Ctor
+      explicit ContentsFactory(const Mime& nonStandardType){
+       try{
+         ContentsFactoryBase(nonStandardType);
+       }catch(...){
+          cout << "Default Exceprion for Ctor ContentsFactoryBase";
+       }
       }
+      
 };
 
 }
